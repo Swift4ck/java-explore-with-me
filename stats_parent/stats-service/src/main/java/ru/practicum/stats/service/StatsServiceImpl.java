@@ -10,6 +10,7 @@ import ru.practicum.stats.service.hit.HitRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -87,6 +88,7 @@ public class StatsServiceImpl implements StatsService {
 
                     return stats;
                 })
+                .sorted(Comparator.comparingLong(ViewStats::getHits).reversed())
                 .collect(Collectors.toList());
 
     }
