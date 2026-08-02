@@ -19,7 +19,7 @@ public class StatsController {
 
     @PostMapping("/hit")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createHit(@RequestBody EndpointHit hit){
+    public void createHit(@RequestBody EndpointHit hit) {
         log.info("Запрос на сохранение информации о том, что к эндпоинту был запрос");
         statsService.saveHit(hit);
     }
@@ -27,7 +27,7 @@ public class StatsController {
     @GetMapping("/stats")
     public List<ViewStats> getStats(@RequestParam String start, @RequestParam String end,
                                     @RequestParam(required = false) List<String> uris,
-                                    @RequestParam(defaultValue = "false") boolean unique){
+                                    @RequestParam(defaultValue = "false") boolean unique) {
         log.info("Запрос на Получение статистики по посещениям");
         return statsService.getStatus(start, end, uris, unique);
     }
