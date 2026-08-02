@@ -52,8 +52,8 @@ public class StatsServiceImpl implements StatsService {
 
         if (uris != null && !uris.isEmpty()) {
             hits = hits.stream()
-                    .filter(h -> uris.contains(h.getUri())).
-                    collect(Collectors.toList());
+                    .filter(h -> uris.contains(h.getUri()))
+                    .collect(Collectors.toList());
         }
 
         Map<String, List<Hit>> groupHits = hits.stream()
@@ -88,7 +88,6 @@ public class StatsServiceImpl implements StatsService {
                     return stats;
                 })
                 .collect(Collectors.toList());
-
 
     }
 }

@@ -25,6 +25,10 @@ services:
       - stats-db-data:/var/lib/postgresql/data
 
 
+  ewm-service:
+    ports:
+      - "8080:8080"
+
 volumes:
   stats-db-data:
 
