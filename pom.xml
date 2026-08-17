@@ -24,6 +24,7 @@
 
     <modules>
         <module>stats_parent</module>
+        <module>main_svc</module>
     </modules>
 
 	<build>

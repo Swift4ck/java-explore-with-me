@@ -24,11 +24,32 @@ services:
     volumes:
       - stats-db-data:/var/lib/postgresql/data
 
+  ewm-db:
+    image: postgres:16.1
+    container_name: ewm-db
+    environment:
+      POSTGRES_DB: ewm          #Имя бд
+      POSTGRES_USER: ewm        #Пользователь
+      POSTGRES_PASSWORD: ewm    #Пароль
+    volumes:
+      - ewm-db-data:/var/lib/postgresql/data #куда сохраняем данные на диске
+    ports:
+      - "5433:5432"
 
   ewm-service:
-    image: hello-world
+    build: main_svc #где находится dockerfile
     container_name: ewm-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
+      SPRING_DATASOURCE_USERNAME: ewm
+      SPRING_DATASOURCE_PASSWORD: ewm
+
+    depends_on:
+      - ewm-db
 
 volumes:
   stats-db-data:
+  ewm-db-data:
 
