@@ -1,4 +1,4 @@
-package service;
+package ru.practicum.main.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
