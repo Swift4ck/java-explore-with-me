@@ -1,4 +1,4 @@
-package ru.practicum.main.service;
+package ru.practicum.main.category.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +9,6 @@ import ru.practicum.main.category.Category;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.repository.CategoryRepository;
-import ru.practicum.main.category.service.CategoryServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
