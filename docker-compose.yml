@@ -10,7 +10,8 @@ services:
       SPRING_DATASOURCE_USERNAME: stats
       SPRING_DATASOURCE_PASSWORD: stats
     depends_on:
-      - stats-db
+      stats-db:
+        condition: service_healthy
 
   stats-db:
     image: postgres:16.1
@@ -23,21 +24,31 @@ services:
       POSTGRES_PASSWORD: stats
     volumes:
       - stats-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stats -d stats"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   ewm-db:
     image: postgres:16.1
     container_name: ewm-db
     environment:
-      POSTGRES_DB: ewm          #Имя бд
-      POSTGRES_USER: ewm        #Пользователь
-      POSTGRES_PASSWORD: ewm    #Пароль
+      POSTGRES_DB: ewm
+      POSTGRES_USER: ewm
+      POSTGRES_PASSWORD: ewm
     volumes:
-      - ewm-db-data:/var/lib/postgresql/data #куда сохраняем данные на диске
+      - ewm-db-data:/var/lib/postgresql/data
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ewm -d ewm"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   ewm-service:
-    build: main_svc #где находится dockerfile
+    build: main_svc
     container_name: ewm-service
     ports:
       - "8080:8080"
@@ -45,11 +56,10 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://ewm-db:5432/ewm
       SPRING_DATASOURCE_USERNAME: ewm
       SPRING_DATASOURCE_PASSWORD: ewm
-
     depends_on:
-      - ewm-db
+      ewm-db:
+        condition: service_healthy
 
 volumes:
   stats-db-data:
   ewm-db-data:
-
