@@ -8,7 +8,8 @@ import java.time.format.DateTimeFormatter;
 
 public class ParticipationMapper {
 
-    public static ParticipationRequestDto toParticipationRequestDto(ParticipationRequest participationRequest) {
+    public static ParticipationRequestDto toParticipationRequestDto(
+            ParticipationRequest participationRequest) {
         return ParticipationRequestDto.builder()
                 .id(participationRequest.getId())
                 .created(participationRequest.getCreated().toString())
@@ -18,7 +19,8 @@ public class ParticipationMapper {
                 .build();
     }
 
-    public static ParticipationRequest toParticipationRequest(ParticipationRequestDto participationRequestDto) {
+    public static ParticipationRequest toParticipationRequest(
+            ParticipationRequestDto participationRequestDto) {
         ParticipationRequest participationRequest = new ParticipationRequest();
         participationRequest.setId(participationRequestDto.getId());
 
@@ -35,9 +37,8 @@ public class ParticipationMapper {
     }
 
 
-    public static EventRequestStatusUpdateRequestDto toEventRequestStatusUpdateRequestDto
-            (EventRequestStatusUpdateRequest
-                     eventRequestStatusUpdateRequestDto) {
+    public static EventRequestStatusUpdateRequestDto toEventRequestStatusUpdateRequestDto(
+            EventRequestStatusUpdateRequest eventRequestStatusUpdateRequestDto) {
 
         return EventRequestStatusUpdateRequestDto.builder()
                 .requestIds(eventRequestStatusUpdateRequestDto.getRequestIds())
