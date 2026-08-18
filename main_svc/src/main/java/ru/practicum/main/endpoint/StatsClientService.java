@@ -43,37 +43,47 @@ public class StatsClientService {
     }
 
     public Map<Long, Long> getViews(List<Long> eventIds) {
-        List<String> uris = eventIds.stream()
-                .map(id -> "/events/" + id)
-                .collect(Collectors.toList());
 
-        String start = "1970-01-01 00:00:00";
-        String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        try {
 
-        String url = statsServiceUrl + "/stats?start=" + encode(start) + "&end=" + encode(end) + "&unique=false";
-        for (String uri : uris) {
-            url += "&uris=" + encode(uri);
-        }
+            List<String> uris = eventIds.stream()
+                    .map(id -> "/events/" + id)
+                    .collect(Collectors.toList());
 
-        ResponseEntity<List<ViewStatsDto>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<ViewStatsDto>>() {}
-        );
+            String start = "1970-01-01 00:00:00";
+            String end = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
-        List<ViewStatsDto> stats = response.getBody();
-        if (stats == null) {
+            String url = statsServiceUrl + "/stats?start=" + encode(start) + "&end=" + encode(end) + "&unique=false";
+            for (String uri : uris) {
+                url += "&uris=" + encode(uri);
+            }
+
+            ResponseEntity<List<ViewStatsDto>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<ViewStatsDto>>() {
+                    }
+            );
+
+            List<ViewStatsDto> stats = response.getBody();
+            if (stats == null) {
+                return Collections.emptyMap();
+            }
+
+            return stats.stream()
+                    .filter(vs -> vs.getUri().startsWith("/events/"))
+                    .collect(Collectors.toMap(
+                            vs -> Long.parseLong(vs.getUri().substring("/events/".length())),
+                            ViewStatsDto::getHits,
+                            (a, b) -> a
+                    ));
+
+        } catch (Exception e) {
+            log.warn("Failed to get views from stats-service: {}", e.getMessage());
             return Collections.emptyMap();
         }
 
-        return stats.stream()
-                .filter(vs -> vs.getUri().startsWith("/events/"))
-                .collect(Collectors.toMap(
-                        vs -> Long.parseLong(vs.getUri().substring("/events/".length())),
-                        ViewStatsDto::getHits,
-                        (a, b) -> a
-                ));
     }
 
     private String encode(String value) {
