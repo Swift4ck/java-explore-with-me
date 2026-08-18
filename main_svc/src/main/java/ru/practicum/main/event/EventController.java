@@ -1,6 +1,7 @@
 package ru.practicum.main.event;
 
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -14,6 +15,8 @@ import ru.practicum.main.exception.ForbiddenException;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.user.model.User;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -81,6 +84,32 @@ public class EventController {
                     + currentUserId + " но пытаетесь действовать от имени: " + userId
             );
         }
+    }
+
+
+    @GetMapping("/events")
+    public List<EventShortDto> getPublishedEvents(
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) Boolean paid,
+            @RequestParam(required = false) String rangeStart,
+            @RequestParam(required = false) String rangeEnd,
+            @RequestParam(defaultValue = "false") boolean onlyAvailable,
+            @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size,
+            HttpServletRequest request) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart, formatter) : null;
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd, formatter) : null;
+
+        return eventService.getPublishedEvents(text, categories, paid, start, end, onlyAvailable, sort, from, size, request);
+    }
+
+    @GetMapping("/events/{id}")
+    public EventFullDto getPublishedEventById(@PathVariable Long id, HttpServletRequest request) {
+        return eventService.getPublishedEventById(id, request);
     }
 
 

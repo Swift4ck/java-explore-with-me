@@ -1,10 +1,12 @@
 package ru.practicum.main.event.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.main.endpoint.StatsClientService;
 import ru.practicum.main.enums.EventState;
 import ru.practicum.main.enums.Status;
 import ru.practicum.main.event.dto.EventFullDto;
@@ -27,7 +29,10 @@ import ru.practicum.main.request.repository.RequestRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -37,6 +42,7 @@ public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
+    private final StatsClientService statsClientService;
 
     @Override
     @Transactional
@@ -67,15 +73,20 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getEvents(Long userId, int from, int size) {
-        log.info("Получен запрос на получения мероприятий {} , {}", from, size);
+        log.info("Получен запрос на получение мероприятий пользователя {}", userId);
 
-        var pageable = PageRequest.of(from, size);
+        PageRequest pageable = PageRequest.of(from, size);
+        List<Event> events = eventRepository.findByInitiator(userId, pageable);
 
-        var page = eventRepository.findByInitiator(userId, pageable);
+        List<Long> eventIds = events.stream()
+                .map(Event::getId)
+                .collect(Collectors.toList());
 
-        return page.stream()
-                .map(EventMapper::toEventShortDto)
-                .toList();
+        Map<Long, Long> viewsMap = statsClientService.getViews(eventIds);
+
+        return events.stream()
+                .map(event -> EventMapper.toEventShortDtoAndViews(event, viewsMap.getOrDefault(event.getId(), 0L)))
+                .collect(Collectors.toList());
     }
 
 
@@ -210,6 +221,95 @@ public class EventServiceImpl implements EventService {
 
         EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(confirmed, rejected);
         return result;
+    }
+
+
+
+    @Override
+    public List<EventShortDto> getPublishedEvents(
+            String text,
+            List<Long> categories,
+            Boolean paid,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd,
+            boolean onlyAvailable,
+            String sort,
+            int from,
+            int size,
+            HttpServletRequest request) {
+
+        statsClientService.sendHit("ewm-main-service", "/events", request.getRemoteAddr());
+
+        PageRequest pageable = PageRequest.of(from, size);
+        List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED, pageable);
+
+        if (text != null && !text.isBlank()) {
+            String lower = text.toLowerCase();
+            events = events.stream()
+                    .filter(e -> (e.getAnnotation() != null && e.getAnnotation().toLowerCase().contains(lower)) ||
+                            (e.getDescription() != null && e.getDescription().toLowerCase().contains(lower)))
+                    .collect(Collectors.toList());
+        }
+        if (categories != null && !categories.isEmpty()) {
+            events = events.stream()
+                    .filter(e -> e.getCategory() != null && categories.contains(e.getCategory().getId()))
+                    .collect(Collectors.toList());
+        }
+        if (paid != null) {
+            events = events.stream()
+                    .filter(e -> e.getPaid() != null && e.getPaid().equals(paid))
+                    .collect(Collectors.toList());
+        }
+        if (rangeStart != null) {
+            events = events.stream()
+                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isBefore(rangeStart))
+                    .collect(Collectors.toList());
+        }
+        if (rangeEnd != null) {
+            events = events.stream()
+                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isAfter(rangeEnd))
+                    .collect(Collectors.toList());
+        }
+        if (onlyAvailable) {
+            events = events.stream()
+                    .filter(e -> e.getParticipantLimit() == 0 || e.getConfirmedRequests() < e.getParticipantLimit())
+                    .collect(Collectors.toList());
+        }
+
+        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
+        Map<Long, Long> viewsMap = statsClientService.getViews(eventIds);
+
+        List<EventShortDto> result = events.stream()
+                .map(event -> EventMapper.toEventShortDtoAndViews(event, viewsMap.getOrDefault(event.getId(), 0L)))
+                .collect(Collectors.toList());
+
+        if ("VIEWS".equalsIgnoreCase(sort)) {
+            result.sort(Comparator.comparingLong(EventShortDto::getViews));
+        } else if ("EVENT_DATE".equalsIgnoreCase(sort)) {
+            events.sort(Comparator.comparing(Event::getEventDate));
+            result = events.stream()
+                    .map(event -> EventMapper.toEventShortDtoAndViews(event, viewsMap.getOrDefault(event.getId(), 0L)))
+                    .collect(Collectors.toList());
+        }
+
+        return result;
+    }
+
+    @Override
+    public EventFullDto getPublishedEventById(Long eventId, HttpServletRequest request) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+
+        if (event.getState() != EventState.PUBLISHED) {
+            throw new NotFoundException("Событие не опубликовано");
+        }
+
+        statsClientService.sendHit("ewm-main-service", "/events/" + eventId, request.getRemoteAddr());
+
+        Map<Long, Long> viewsMap = statsClientService.getViews(List.of(eventId));
+        Long views = viewsMap.getOrDefault(eventId, 0L);
+
+        return EventMapper.toEventFullDtoAndViews(event, views);
     }
 
 

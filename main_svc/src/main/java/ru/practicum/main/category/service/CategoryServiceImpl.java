@@ -65,9 +65,9 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         Category saveCat = CategoryMapper.toCategory(categoryDto);
-        categoryRepository.save(saveCat);
+        Category savedCategory = categoryRepository.save(saveCat);
 
-        return CategoryMapper.toCategoryDto(saveCat);
+        return CategoryMapper.toCategoryDto(savedCategory);
     }
 
     public void deleteCategories(Long catId) {

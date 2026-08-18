@@ -57,4 +57,6 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state; //Список состояний жизненного цикла события
 
+    private Long views; // просмотры
+
 }
