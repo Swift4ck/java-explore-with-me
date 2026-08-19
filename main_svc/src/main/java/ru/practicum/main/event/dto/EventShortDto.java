@@ -1,7 +1,6 @@
 package ru.practicum.main.event.dto;
 
 import lombok.*;
-import ru.practicum.main.category.Category;
 
 @NoArgsConstructor
 @AllArgsConstructor
