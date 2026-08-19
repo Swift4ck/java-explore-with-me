@@ -64,6 +64,10 @@ public class CategoryServiceImpl implements CategoryService {
             throw new ConflictException("Запрещено добавлять не уникальные категории");
         }
 
+        if (newCategoryDto.getName().length() > 50) {
+            throw new BadRequestException("Имя категории не может быть длиннее 50 символов");
+        }
+
         Category saveCat = CategoryMapper.toCategory(categoryDto);
         Category savedCategory = categoryRepository.save(saveCat);
 
@@ -87,21 +91,23 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryDto updateCategory(CategoryDto updateCategory, Long catId) {
         log.info("Получен запрос на изменение категории ID: {}", catId);
 
-        if (updateCategory.getName().isEmpty()) {
+        if (updateCategory.getName() == null || updateCategory.getName().isBlank()) {
             throw new BadRequestException("Имя категории не может быть пустым");
-        }
-
-        Category category = categoryRepository.findByName(updateCategory.getName());
-
-        if (category != null) {
-            throw new ConflictException("Запрещено добавлять не уникальные категории");
         }
 
         Category findCat = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Категории с ID " + catId + " не найден"));
 
-        findCat.setName(updateCategory.getName());
+        if (findCat.getName().equals(updateCategory.getName())) {
+            return CategoryMapper.toCategoryDto(findCat);
+        }
 
+        Category existing = categoryRepository.findByName(updateCategory.getName());
+        if (existing != null) {
+            throw new ConflictException("Запрещено добавлять не уникальные категории");
+        }
+
+        findCat.setName(updateCategory.getName());
         Category saveCat = categoryRepository.save(findCat);
 
         return CategoryMapper.toCategoryDto(saveCat);

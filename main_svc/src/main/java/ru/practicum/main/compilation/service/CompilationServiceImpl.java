@@ -70,26 +70,31 @@ public class CompilationServiceImpl implements CompilationService {
         return ResponseEntity.noContent().build();
     }
 
-    @Transactional
     @Override
+    @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
         log.info("Получен запрос на обновление подборки с ID: {}", compId);
 
         Compilation compilation = compilationRepository.findById(compId)
                 .orElseThrow(() -> new NotFoundException("Подборка с id:" + compId + " не найдено"));
 
-        List<Event> events = new ArrayList<>();
+        if (updateCompilationRequest.getTitle() != null) {
+            compilation.setTitle(updateCompilationRequest.getTitle());
+        }
 
-        if (updateCompilationRequest.getEvents() != null && updateCompilationRequest.getEvents().isEmpty()) {
-            for (Long id : updateCompilationRequest.getEvents()) {
-                Event event = eventRepository.findById(id)
-                        .orElseThrow(() -> new NotFoundException("Событие с id:" + id + " не найдено"));
+        if (updateCompilationRequest.getPinned() != null) {
+            compilation.setPinned(updateCompilationRequest.getPinned());
+        }
+
+        if (updateCompilationRequest.getEvents() != null) {
+            List<Event> events = new ArrayList<>();
+            for (Long eventId : updateCompilationRequest.getEvents()) {
+                Event event = eventRepository.findById(eventId)
+                        .orElseThrow(() -> new NotFoundException("Событие с id:" + eventId + " не найдено"));
                 events.add(event);
             }
+            compilation.setEvents(events);
         }
-        compilation.setPinned(updateCompilationRequest.isPinned());
-        compilation.setTitle(updateCompilationRequest.getTitle());
-        compilation.setEvents(events);
 
         Compilation save = compilationRepository.save(compilation);
         return CompilationMapper.toCompilationDto(save);

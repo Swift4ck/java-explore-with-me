@@ -60,7 +60,7 @@ public class EventServiceImpl implements EventService {
         LocalDateTime timestamp = LocalDateTime.parse(newEventDto.getEventDate(), formatter);
 
         if (timestamp.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new ForbiddenException("Дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента: "
+            throw new BadRequestException("Дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента: "
                     + LocalDateTime.now().plusHours(2));
         }
 
@@ -245,10 +245,15 @@ public class EventServiceImpl implements EventService {
             int size,
             HttpServletRequest request) {
 
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new BadRequestException("Дата начала не может быть позже даты окончания");
+        }
+
         statsClientService.sendHit("ewm-main-service", "/events", request.getRemoteAddr());
 
         PageRequest pageable = PageRequest.of(from, size);
         List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED, pageable);
+
 
         if (text != null && !text.isBlank()) {
             String lower = text.toLowerCase();
@@ -345,10 +350,11 @@ public class EventServiceImpl implements EventService {
             LocalDateTime timestamp = LocalDateTime.parse(dateStr, formatter);
 
             if (timestamp.isBefore(LocalDateTime.now().plusHours(2))) {
-                updateEvent.setEventDate(timestamp);
+                throw new BadRequestException("Дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента");
             } else {
-                throw new ForbiddenException("Дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента ");
+                updateEvent.setEventDate(timestamp);
             }
+
         }
 
         if (checkEvent.getInitiator() != null) {

@@ -36,7 +36,7 @@ public class EventController {
 
     @PostMapping("/users/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto createEvent(@Valid @PathVariable Long userId, @RequestBody NewEventDto newEventDto) {
+    public EventFullDto createEvent(@PathVariable Long userId, @Valid @RequestBody NewEventDto newEventDto) {
 
 //        authorizationVerification(userId);
 
@@ -44,7 +44,7 @@ public class EventController {
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
-    public EventFullDto getFullEventById(@PathVariable Long userId,@PathVariable Long eventId) {
+    public EventFullDto getFullEventById(@PathVariable Long userId, @PathVariable Long eventId) {
 
 //        authorizationVerification(userId);
 
@@ -52,7 +52,7 @@ public class EventController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
-    public EventShortDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId, @RequestBody EventShortDto eventShortDto) {
+    public EventShortDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId, @Valid @RequestBody EventShortDto eventShortDto) {
 
 //        authorizationVerification(userId);
 
@@ -110,7 +110,6 @@ public class EventController {
     public EventFullDto getPublishedEventById(@PathVariable Long id, HttpServletRequest request) {
         return eventService.getPublishedEventById(id, request);
     }
-
 
 
 }
