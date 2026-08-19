@@ -25,7 +25,7 @@ public class UpdateEventUserRequest {
 
     private Location location;
 
-    private boolean paid; //Новое значение флага о платности мероприятия
+    private Boolean paid; //Новое значение флага о платности мероприятия
 
     private Integer participantLimit; // limit
 
