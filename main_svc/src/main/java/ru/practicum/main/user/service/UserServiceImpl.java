@@ -52,35 +52,24 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
+        log.info("Запрос на получения списка пользователей по id: {}", ids);
 
-        log.info("запрос на получения списка пользователей по id: {}", ids);
-
-        List<UserDto> resultUser = new ArrayList<>();
-
-        if (!ids.isEmpty()) {
-            for (Long id : ids) {
-                User findUser = userRepository.findById(id)
-                        .orElse(null);
-                if (findUser != null) {
-                    resultUser.add(UserMapper.toUserDto(findUser));
-                }
-
-            }
-
-            return resultUser;
-
-        } else {
-
-            var pageable = PageRequest.of(from, size);
-
-            var page = userRepository.findAll(pageable);
-
-            return page.getContent()
+        if (ids == null || ids.isEmpty()) {
+            PageRequest pageable = PageRequest.of(from, size);
+            return userRepository.findAll(pageable).getContent()
                     .stream()
                     .map(UserMapper::toUserDto)
                     .toList();
         }
 
+        List<UserDto> resultUser = new ArrayList<>();
+        for (Long id : ids) {
+            User findUser = userRepository.findById(id).orElse(null);
+            if (findUser != null) {
+                resultUser.add(UserMapper.toUserDto(findUser));
+            }
+        }
+        return resultUser;
     }
 
     @Transactional

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.endpoint.StatsClientService;
 import ru.practicum.main.enums.EventState;
 import ru.practicum.main.enums.Status;
@@ -43,6 +44,8 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
     private final StatsClientService statsClientService;
+    private final CategoryRepository categoryRepository;
+
 
     @Override
     @Transactional
@@ -62,6 +65,10 @@ public class EventServiceImpl implements EventService {
         }
 
         Event newEvent = EventMapper.toEvent(newEventDto);
+
+        newEvent.setCategory(categoryRepository.findById(newEventDto.getCategory())
+                .orElseThrow(() -> new NotFoundException("Категория с ID " + newEventDto.getCategory() + " не найдено")));
+
 
         newEvent.setInitiator(userId);
         newEvent.setState(EventState.PENDING);
@@ -83,6 +90,7 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
 
         Map<Long, Long> viewsMap = statsClientService.getViews(eventIds);
+
 
         return events.stream()
                 .map(event -> EventMapper.toEventShortDtoAndViews(event, viewsMap.getOrDefault(event.getId(), 0L)))
@@ -224,7 +232,6 @@ public class EventServiceImpl implements EventService {
     }
 
 
-
     @Override
     public List<EventShortDto> getPublishedEvents(
             String text,
@@ -321,7 +328,11 @@ public class EventServiceImpl implements EventService {
         }
 
         if ((checkEvent.getCategory() != null)) {
-            updateEvent.setCategory(checkEvent.getCategory());
+
+
+            updateEvent.setCategory(categoryRepository.findById(checkEvent.getCategory())
+                    .orElseThrow(()
+                            -> new NotFoundException("Не найдена заявка на участие в событии:" + checkEvent.getCategory())));
         }
 
         if (checkEvent.getConfirmedRequests() != null) {

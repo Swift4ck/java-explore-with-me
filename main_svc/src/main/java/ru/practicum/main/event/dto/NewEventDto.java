@@ -16,7 +16,7 @@ public class NewEventDto {
 
     private String annotation; //Краткое описание события
 
-    private Category category; //id категории к которой относится событие
+    private Long category; //id категории к которой относится событие
 
     private String description; //Полное описание события
 

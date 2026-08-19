@@ -1,6 +1,7 @@
 package ru.practicum.main.request;
 
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class RequestController {
     private final RequestService requestService;
 
     @PostMapping("/users/{userId}/requests")
-    public ParticipationRequestDto createRequest(@PathVariable Long userId, @RequestParam Long eventId) {
+    public ParticipationRequestDto createRequest(@PathVariable Long userId, @RequestParam(required = false) Long eventId) {
 
 //        authorizationVerification(userId);
 

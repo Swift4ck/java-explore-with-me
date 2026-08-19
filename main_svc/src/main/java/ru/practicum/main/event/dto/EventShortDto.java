@@ -12,7 +12,7 @@ public class EventShortDto {
 
     private String annotation; //Краткое описаниe
 
-    private Category category;
+    private Long category;
 
     private Integer confirmedRequests; //Количество одобренных заявок на участие в данном событии
 

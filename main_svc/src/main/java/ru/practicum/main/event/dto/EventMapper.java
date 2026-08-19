@@ -1,5 +1,6 @@
 package ru.practicum.main.event.dto;
 
+import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.event.model.Event;
 
 import java.time.LocalDateTime;
@@ -7,11 +8,13 @@ import java.time.format.DateTimeFormatter;
 
 public class EventMapper {
 
+    private CategoryRepository categoryRepository;
+
     public static Event toEvent(NewEventDto newEventDto) {
         Event event = new Event();
 
         event.setAnnotation(newEventDto.getAnnotation());
-        event.setCategory(newEventDto.getCategory());
+
         event.setDescription(newEventDto.getDescription());
 
 
@@ -76,7 +79,6 @@ public class EventMapper {
 
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
-                .category(event.getCategory())
                 .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate().toString())
                 .id(event.getId())
@@ -91,7 +93,6 @@ public class EventMapper {
 
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
-                .category(event.getCategory())
                 .confirmedRequests(event.getConfirmedRequests())
                 .eventDate(event.getEventDate().toString())
                 .id(event.getId())
@@ -107,7 +108,6 @@ public class EventMapper {
         Event event = new Event();
 
         event.setAnnotation(eventShortDto.getAnnotation());
-        event.setCategory(eventShortDto.getCategory());
         event.setConfirmedRequests(eventShortDto.getConfirmedRequests());
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

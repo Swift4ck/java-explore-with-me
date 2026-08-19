@@ -2,6 +2,7 @@ package ru.practicum.main.compilation;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.compilation.dto.CompilationDto;
@@ -19,6 +20,7 @@ public class CompilationController {
     private final CompilationService compilationService;
 
     @PostMapping("/admin/compilations")
+    @ResponseStatus(HttpStatus.CREATED)
     public CompilationDto createCompilation(@RequestBody NewCompilationDto newCompilationDto) {
         return compilationService.createCompilation(newCompilationDto);
     }
