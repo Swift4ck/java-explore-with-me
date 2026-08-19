@@ -19,7 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/admin/users")
-    public UserDto createUser(NewUserRequest newUserRequest) {
+    public UserDto createUser(@RequestBody NewUserRequest newUserRequest) {
         return userService.createUser(newUserRequest);
     }
 

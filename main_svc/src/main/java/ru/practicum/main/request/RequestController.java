@@ -18,7 +18,7 @@ public class RequestController {
     private final RequestService requestService;
 
     @PostMapping("/users/{userId}/requests")
-    public ParticipationRequestDto createRequest(@PathVariable Long userId, @PathVariable Long eventId) {
+    public ParticipationRequestDto createRequest(@PathVariable Long userId, @RequestParam Long eventId) {
 
 //        authorizationVerification(userId);
 
@@ -34,7 +34,7 @@ public class RequestController {
     }
 
     @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
-    public ParticipationRequestDto cancelRequest(@PathVariable Long userId, @RequestParam Long requestId) {
+    public ParticipationRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
 
 //        authorizationVerification(userId);
 
