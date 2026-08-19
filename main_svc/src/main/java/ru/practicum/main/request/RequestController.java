@@ -18,7 +18,7 @@ public class RequestController {
     private final RequestService requestService;
 
     @PostMapping("/users/{userId}/requests")
-    public ParticipationRequestDto createRequest(@PathVariable Long userId, @RequestParam(required = false) Long eventId) {
+    public ParticipationRequestDto createRequest(@PathVariable Long userId, @RequestParam(required = true) Long eventId) {
 
 //        authorizationVerification(userId);
 
