@@ -1,6 +1,5 @@
 package ru.practicum.main.event.dto;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

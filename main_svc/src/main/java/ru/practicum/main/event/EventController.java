@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
-import ru.practicum.main.event.model.UpdateEventAdminRequest;
 import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 
