@@ -102,11 +102,6 @@ public class CompilationServiceImpl implements CompilationService {
 
         var page = compilationRepository.findByPinned(pinned, pageable);
 
-        if (pinned == null) {
-            page = compilationRepository.findAll(pageable);
-        } else {
-            page = compilationRepository.findByPinned(pinned, pageable);
-        }
 
         return page.getContent().stream()
                 .map(CompilationMapper::toCompilationDto)
