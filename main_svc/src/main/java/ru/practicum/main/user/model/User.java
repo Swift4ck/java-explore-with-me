@@ -15,6 +15,7 @@ import ru.practicum.main.enums.Role;
 @Table(name = "users")
 public class User {
 
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Id

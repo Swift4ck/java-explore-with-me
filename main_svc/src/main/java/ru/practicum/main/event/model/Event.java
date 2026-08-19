@@ -22,6 +22,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 2000)
     private String annotation; //краткое описание
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -34,18 +35,20 @@ public class Event {
     @Column(name = "initiator_id")
     private Long initiator; //кто создал
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
     private Location location;
 
     private Boolean paid; //Нужно ли оплачивать участие
 
+    @Column(length = 120)
     private String title;//название
 
     private Integer confirmedRequests; //Количество одобренных заявок на участие в данном событии
 
     private LocalDateTime createdOn; //Дата и время создания события (в формате \"yyyy-MM-dd HH:mm:ss\")
 
+    @Column(length = 7000)
     private String description;
 
     private Integer participantLimit = 0; //Ограничение на количество участников. Значение 0 - означает отсутствие ограничения

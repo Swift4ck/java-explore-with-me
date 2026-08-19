@@ -3,6 +3,7 @@ package ru.practicum.main.compilation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -100,8 +101,13 @@ public class CompilationServiceImpl implements CompilationService {
 
         var pageable = PageRequest.of(from, size);
 
-        var page = compilationRepository.findByPinned(pinned, pageable);
+        Page<Compilation> page;
 
+        if (pinned == null) {
+            page = compilationRepository.findAll(pageable);
+        } else {
+            page = compilationRepository.findByPinned(pinned, pageable);
+        }
 
         return page.getContent().stream()
                 .map(CompilationMapper::toCompilationDto)
