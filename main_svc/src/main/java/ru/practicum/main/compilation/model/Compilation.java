@@ -21,7 +21,7 @@ public class Compilation {
     private Long id;
 
     @Column(name = "pinned")
-    private Boolean pinned; //Закреплена ли подборка на главной странице сайта
+    private Boolean pinned = false; //Закреплена ли подборка на главной странице сайта
 
     @Column(name = "title")
     private String title; //Заголовок подборки

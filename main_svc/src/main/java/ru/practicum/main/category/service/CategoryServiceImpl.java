@@ -70,6 +70,8 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(savedCategory);
     }
 
+    @Override
+    @Transactional
     public void deleteCategories(Long catId) {
 
         log.info("Получен запрос на удаления категории id:{}", catId);

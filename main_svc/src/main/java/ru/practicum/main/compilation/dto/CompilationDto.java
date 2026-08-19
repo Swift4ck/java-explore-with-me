@@ -16,7 +16,7 @@ public class CompilationDto {
 
     private Long id;
 
-    private Boolean pinned; //Закреплена ли подборка на главной странице сайта
+    private Boolean pinned = false; //Закреплена ли подборка на главной странице сайта
 
     private String title; //Заголовок подборки
 

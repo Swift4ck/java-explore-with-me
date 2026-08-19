@@ -41,7 +41,7 @@ public class RequestServiceImpl implements RequestService {
 
         ParticipationRequest check = requestRepository.findParticipationRequestByEventIdAndRequesterId(eventId, userId);
 
-        if (check == null) {
+        if (check != null) {
             throw new ConflictException("Пользователь уже подал заявку");
         }
 

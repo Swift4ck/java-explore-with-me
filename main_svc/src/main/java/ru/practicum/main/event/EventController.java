@@ -41,7 +41,7 @@ public class EventController {
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
-    public EventFullDto getFullEventById(Long userId, Long eventId) {
+    public EventFullDto getFullEventById(@PathVariable Long userId,@PathVariable Long eventId) {
 
 //        authorizationVerification(userId);
 
