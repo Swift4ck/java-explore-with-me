@@ -2,6 +2,7 @@ package ru.practicum.main.event;
 
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,7 +36,7 @@ public class EventController {
 
     @PostMapping("/users/{userId}/events")
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto createEvent(@PathVariable Long userId, @RequestBody NewEventDto newEventDto) {
+    public EventFullDto createEvent(@Valid @PathVariable Long userId, @RequestBody NewEventDto newEventDto) {
 
 //        authorizationVerification(userId);
 

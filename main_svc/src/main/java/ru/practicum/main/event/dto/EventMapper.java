@@ -49,6 +49,7 @@ public class EventMapper {
                 .publishedOn(event.getPublishedOn())
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
+                .views(event.getViews() != null ? event.getViews() : 0L)
                 .build();
 
     }
@@ -85,7 +86,7 @@ public class EventMapper {
                 .initiator(event.getInitiator())
                 .paid(event.getPaid())
                 .title(event.getTitle())
-                .views(event.getViews())
+                .views(event.getViews() != null ? event.getViews() : 0L)
                 .build();
     }
 
@@ -99,7 +100,7 @@ public class EventMapper {
                 .initiator(event.getInitiator())
                 .paid(event.getPaid())
                 .title(event.getTitle())
-                .views(views)
+                .views(event.getViews() != null ? event.getViews() : 0L)
                 .build();
     }
 

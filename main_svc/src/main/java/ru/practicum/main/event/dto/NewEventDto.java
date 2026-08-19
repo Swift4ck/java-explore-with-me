@@ -1,5 +1,6 @@
 package ru.practicum.main.event.dto;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +13,12 @@ import ru.practicum.main.event.model.Location;
 @Getter
 public class NewEventDto {
 
-
+    @Column(length = 2000)
     private String annotation; //Краткое описание события
 
     private Long category; //id категории к которой относится событие
 
+    @Column(length = 7000)
     private String description; //Полное описание события
 
     private String eventDate; //Дата и время на которые намечено событие. Дата и время указываются в формате \"yyyy-MM-dd HH:mm:ss\
@@ -29,6 +31,7 @@ public class NewEventDto {
 
     private Boolean requestModeration; //Нужна ли пре-модерация заявок на участие. Если true, то все заявки будут ожидать подтверждения инициатором события. Если false - то будут подтверждаться автоматически.
 
+    @Column(length = 120)
     private String title; //Заголовок события
 
 }
