@@ -86,7 +86,7 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setPinned(updateCompilationRequest.getPinned());
         }
 
-        if (updateCompilationRequest.getEvents() != null) {
+        if (updateCompilationRequest.getEvents() != null && !updateCompilationRequest.getEvents().isEmpty()) {
             List<Event> events = new ArrayList<>();
             for (Long eventId : updateCompilationRequest.getEvents()) {
                 Event event = eventRepository.findById(eventId)

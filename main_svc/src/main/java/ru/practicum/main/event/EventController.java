@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
+import ru.practicum.main.event.model.UpdateEventUserRequest;
 import ru.practicum.main.event.service.EventService;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 
@@ -52,11 +53,12 @@ public class EventController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
-    public EventShortDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId, @Valid @RequestBody EventShortDto eventShortDto) {
+    public EventShortDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
+                                     @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
 
 //        authorizationVerification(userId);
 
-        return eventService.updateEvent(userId, eventId, eventShortDto);
+        return eventService.updateEvent(userId, eventId, updateEventUserRequest);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}/requests")

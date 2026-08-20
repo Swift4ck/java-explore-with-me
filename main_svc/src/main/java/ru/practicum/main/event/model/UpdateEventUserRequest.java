@@ -1,6 +1,7 @@
 package ru.practicum.main.event.model;
 
 
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,9 +28,10 @@ public class UpdateEventUserRequest {
 
     private Boolean paid; //Новое значение флага о платности мероприятия
 
+    @PositiveOrZero
     private Integer participantLimit; // limit
 
-    private boolean requestModeration; //Нужна ли пре-модерация заявок на участие
+    private Boolean requestModeration; //Нужна ли пре-модерация заявок на участие
 
     private String stateAction; //Изменение соcтояния события
 

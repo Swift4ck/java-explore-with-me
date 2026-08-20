@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
+import ru.practicum.main.event.model.UpdateEventUserRequest;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.model.EventRequestStatusUpdateRequest;
 import ru.practicum.main.request.model.EventRequestStatusUpdateResult;
@@ -19,7 +20,7 @@ public interface EventService {
 
     public EventFullDto getFullEventById(Long userId, Long eventId);
 
-    public EventShortDto updateEvent(Long userId, Long eventId, EventShortDto eventShortDto);
+    public EventShortDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
     public List<ParticipationRequestDto> getEventRequestsForUser(Long userId, Long eventId);
 

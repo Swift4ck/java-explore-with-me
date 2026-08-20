@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService {
         } catch (DataIntegrityViolationException exp) {
             throw new ConflictException("пользователь с таким email уже существует");
         }
+
     }
 
 

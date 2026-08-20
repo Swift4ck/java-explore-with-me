@@ -15,6 +15,7 @@ import ru.practicum.main.event.dto.EventMapper;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.model.UpdateEventUserRequest;
 import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.exception.ConflictException;
@@ -110,20 +111,72 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventShortDto updateEvent(Long userId, Long eventId, EventShortDto eventShortDto) {
+    public EventShortDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         log.info("Получен запрос на изменение мероприятия от пользователя:{} для мероприятия{}", userId, eventId);
 
 
         Event updateEvent = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Мероприятие с ID " + eventId + " не найдено"));
 
-        if (eventShortDto == null) {
+        if (updateEventUserRequest == null) {
             throw new BadRequestException("Данные не корректны");
         }
 
-        checkIsEmpty(eventShortDto, updateEvent);
+        if (updateEventUserRequest.getAnnotation() != null && !updateEventUserRequest.getAnnotation().isEmpty()) {
+            updateEvent.setAnnotation(updateEventUserRequest.getAnnotation());
+        }
 
-        return EventMapper.toEventShortDto(updateEvent);
+        if (updateEventUserRequest.getCategory() != null) {
+            updateEvent.setCategory(categoryRepository.findById(updateEventUserRequest.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Категория с ID " + updateEventUserRequest.getCategory() + " не найдено)")));
+        }
+
+        if (updateEventUserRequest.getDescription() != null && !updateEventUserRequest.getDescription().isEmpty()) {
+            updateEvent.setDescription(updateEventUserRequest.getDescription());
+        }
+
+        if (updateEventUserRequest.getEventDate() != null && !updateEventUserRequest.getEventDate().isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime timestamp = LocalDateTime.parse(updateEventUserRequest.getEventDate(), formatter);
+            if (timestamp.isBefore(LocalDateTime.now().plusHours(2))) {
+                throw new BadRequestException("Дата и время на которые намечено событие не может быть раньше, чем через два часа от текущего момента");
+            }
+            updateEvent.setEventDate(timestamp);
+        }
+
+        if (updateEventUserRequest.getLocation() != null) {
+            updateEvent.setLocation(updateEventUserRequest.getLocation());
+        }
+
+        if (updateEventUserRequest.getPaid() != null) {
+            updateEvent.setPaid(updateEventUserRequest.getPaid());
+        }
+
+        if (updateEventUserRequest.getParticipantLimit() != null) {
+            updateEvent.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
+        }
+
+        if (updateEventUserRequest.getRequestModeration() != null) {
+            updateEvent.setRequestModeration(updateEventUserRequest.getRequestModeration());
+        }
+
+        String stateString = updateEventUserRequest.getStateAction();
+        if (stateString != null && !stateString.trim().isEmpty()) {
+            try {
+                EventState newState = EventState.valueOf(stateString.trim().toUpperCase());
+                updateEvent.setState(newState);
+            } catch (IllegalArgumentException e) {
+                throw new BadRequestException("Недопустимое значение состояния: " + stateString);
+            }
+        }
+
+        if (updateEventUserRequest.getTitle() != null && !updateEventUserRequest.getTitle().isEmpty()) {
+            updateEvent.setTitle(updateEventUserRequest.getTitle());
+        }
+
+        Event saveEvent = eventRepository.save(updateEvent);
+
+        return EventMapper.toEventShortDto(saveEvent);
     }
 
 
