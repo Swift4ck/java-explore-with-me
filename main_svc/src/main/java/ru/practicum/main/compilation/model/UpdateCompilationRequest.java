@@ -1,5 +1,6 @@
 package ru.practicum.main.compilation.model;
 
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ public class UpdateCompilationRequest {
 
     private Boolean pinned; //Закреплена ли подборка на главной странице сайта
 
+    @Size(max = 50)
     private String title; //Заголовок подборки
 
 }

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
+import ru.practicum.main.request.model.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.model.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.service.RequestService;
 
 import java.util.List;
@@ -17,11 +19,10 @@ public class RequestController {
 
     private final RequestService requestService;
 
+
     @PostMapping("/users/{userId}/requests")
     public ParticipationRequestDto createRequest(@PathVariable Long userId, @RequestParam(required = true) Long eventId) {
-
 //        authorizationVerification(userId);
-
         return requestService.createRequest(userId, eventId);
     }
 
@@ -39,6 +40,14 @@ public class RequestController {
 //        authorizationVerification(userId);
 
         return requestService.cancelRequest(userId, requestId);
+    }
+
+    @PatchMapping("/users/{userId}/events/{eventId}/requests")
+    public EventRequestStatusUpdateResult updateStatusRequests(
+            @PathVariable Long userId,
+            @PathVariable Long eventId,
+            @RequestBody EventRequestStatusUpdateRequest request) {
+        return requestService.updateStatusRequest(userId, eventId, request);
     }
 
 

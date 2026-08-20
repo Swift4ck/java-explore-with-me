@@ -14,11 +14,14 @@ import ru.practicum.main.exception.ForbiddenException;
 import ru.practicum.main.exception.NotFoundException;
 import ru.practicum.main.request.dto.ParticipationMapper;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
+import ru.practicum.main.request.model.EventRequestStatusUpdateRequest;
+import ru.practicum.main.request.model.EventRequestStatusUpdateResult;
 import ru.practicum.main.request.model.ParticipationRequest;
 import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -120,6 +123,92 @@ public class RequestServiceImpl implements RequestService {
         cancelRequest.setStatus(Status.CANCELED);
 
         return ParticipationMapper.toParticipationRequestDto(cancelRequest);
+    }
+
+    @Override
+    @Transactional
+    public EventRequestStatusUpdateResult updateStatusRequest(Long userId, Long eventId,
+                                                              EventRequestStatusUpdateRequest requestDto) {
+        log.info("Запрос на изменение статуса заявок. Пользователь: {}, Событие: {}", userId, eventId);
+
+        if (requestDto == null || requestDto.getRequestIds() == null || requestDto.getRequestIds().isEmpty()) {
+            throw new BadRequestException("Запрос составлен некорректно: список ID заявок пуст или отсутствует");
+        }
+
+        Status newStatus = requestDto.getStatus();
+        if (newStatus == null || (newStatus != Status.CONFIRMED && newStatus != Status.REJECTED)) {
+            throw new BadRequestException("Некорректный статус заявки. Допустимо только CONFIRMED или REJECTED");
+        }
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
+
+        if (!event.getInitiator().equals(userId)) {
+            throw new ForbiddenException("Событие не найдено или недоступно");
+        }
+
+
+        if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
+            throw new ConflictException("Для данного события подтверждение заявок не требуется");
+        }
+
+        if (newStatus == Status.CONFIRMED) {
+            long currentConfirmed = requestRepository.countByEventIdAndStatus(eventId, Status.CONFIRMED);
+            if (currentConfirmed >= event.getParticipantLimit()) {
+
+                for (Long requestId : requestDto.getRequestIds()) {
+                    ParticipationRequest participationRequest = requestRepository.findById(requestId)
+                            .orElseThrow(()
+                                    -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
+
+                    participationRequest.setStatus(Status.REJECTED);
+                    requestRepository.save(participationRequest);
+                }
+                throw new ConflictException("Достигнут лимит одобренных заявок");
+            }
+        }
+
+        List<ParticipationRequestDto> confirmed = new ArrayList<>();
+        List<ParticipationRequestDto> rejected = new ArrayList<>();
+
+        int actualLimit = requestRepository.countByEventIdAndStatus(eventId, Status.CONFIRMED);
+        int countCycle = 0;
+
+        for (Long requestId : requestDto.getRequestIds()) {
+
+            if (actualLimit + countCycle < event.getParticipantLimit() && requestDto.getStatus().equals(Status.CONFIRMED)) {
+                ParticipationRequest participationRequest = requestRepository.findById(requestId)
+                        .orElseThrow(()
+                                -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
+
+                if (!participationRequest.getStatus().equals(Status.PENDING)) {
+                    throw new BadRequestException("Подтверждать статус можно только заявки со статусом PENDING");
+                }
+
+                confirmed.add(ParticipationMapper.toParticipationRequestDto(participationRequest));
+                countCycle++;
+            } else {
+                ParticipationRequest participationRequest = requestRepository.findById(requestId)
+                        .orElseThrow(()
+                                -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
+
+                rejected.add(ParticipationMapper.toParticipationRequestDto(participationRequest));
+            }
+
+        }
+
+        for (ParticipationRequestDto dto : confirmed) {
+            dto.setStatus(requestDto.getStatus());
+            requestRepository.save(ParticipationMapper.toParticipationRequest(dto));
+        }
+
+        for (ParticipationRequestDto dto : rejected) {
+            dto.setStatus(Status.REJECTED);
+            requestRepository.save(ParticipationMapper.toParticipationRequest(dto));
+        }
+
+        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(confirmed, rejected);
+        return result;
     }
 
 }

@@ -20,6 +20,7 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+
     @GetMapping("/categories")
     public List<CategoryDto> getCategory(@RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size) {

@@ -1,5 +1,6 @@
 package ru.practicum.main.compilation;
 
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class CompilationController {
 
     @PatchMapping("/admin/compilations/{compId}")
     public CompilationDto updateCompilation(@PathVariable Long compId,
-                                            @RequestBody UpdateCompilationRequest updateCompilationRequest) {
+                                            @Valid @RequestBody UpdateCompilationRequest updateCompilationRequest) {
         return compilationService.updateCompilation(compId, updateCompilationRequest);
     }
 
