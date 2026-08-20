@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
         if (parts.length != 2) {
             throw new BadRequestException("Некорректный формат email");
         }
-        
+
         User saveUser = new User();
         saveUser.setEmail(email);
         saveUser.setName(name);
