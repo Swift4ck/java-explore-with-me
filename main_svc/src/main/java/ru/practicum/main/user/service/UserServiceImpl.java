@@ -57,13 +57,7 @@ public class UserServiceImpl implements UserService {
         if (parts.length != 2) {
             throw new BadRequestException("Некорректный формат email");
         }
-        if (parts[0].length() > 64) {
-            throw new BadRequestException("Локальная часть email не может быть длиннее 64 символов");
-        }
-        if (parts[1].length() > 63) {
-            throw new BadRequestException("Домен email не может быть длиннее 63 символов");
-        }
-
+        
         User saveUser = new User();
         saveUser.setEmail(email);
         saveUser.setName(name);

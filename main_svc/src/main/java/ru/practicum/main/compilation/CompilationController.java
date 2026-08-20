@@ -22,7 +22,7 @@ public class CompilationController {
 
     @PostMapping("/admin/compilations")
     @ResponseStatus(HttpStatus.CREATED)
-    public CompilationDto createCompilation(@RequestBody NewCompilationDto newCompilationDto) {
+    public CompilationDto createCompilation(@Valid @RequestBody NewCompilationDto newCompilationDto) {
         return compilationService.createCompilation(newCompilationDto);
     }
 

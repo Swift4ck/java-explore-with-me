@@ -76,10 +76,10 @@ public class RequestServiceImpl implements RequestService {
                 .orElseThrow(() -> new NotFoundException("Пользователь с ID:" + userId + "не найдено"))
         );
 
-        if (checkEvent.getRequestModeration()) {
-            participationRequest.setStatus(Status.PENDING);
-        } else {
+        if (checkEvent.getParticipantLimit() == 0 || !checkEvent.getRequestModeration()) {
             participationRequest.setStatus(Status.CONFIRMED);
+        } else {
+            participationRequest.setStatus(Status.PENDING);
         }
 
         ParticipationRequest saverRequest = requestRepository.save(participationRequest);
@@ -121,7 +121,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
         cancelRequest.setStatus(Status.CANCELED);
-
+        requestRepository.save(cancelRequest);
         return ParticipationMapper.toParticipationRequestDto(cancelRequest);
     }
 

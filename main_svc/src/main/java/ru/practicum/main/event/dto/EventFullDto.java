@@ -1,5 +1,6 @@
 package ru.practicum.main.event.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.main.category.Category;
 import ru.practicum.main.enums.EventState;
@@ -23,6 +24,7 @@ public class EventFullDto {
     private LocalDateTime eventDate;
 
     private Long initiator; //кто создал
+
 
     private Location location;
 
