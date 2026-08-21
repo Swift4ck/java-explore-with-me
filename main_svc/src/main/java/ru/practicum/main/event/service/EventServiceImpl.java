@@ -463,7 +463,7 @@ public class EventServiceImpl implements EventService {
             }
 
             if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
-                throw new ConflictException("Дата начала события должна быть не ранее чем за 2 час от текущего момента");
+                throw new BadRequestException("Дата начала события должна быть не ранее чем за 2 час от текущего момента");
             }
             event.setEventDate(eventDate);
         }
