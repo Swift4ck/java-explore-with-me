@@ -50,6 +50,19 @@ public class RequestController {
         return requestService.updateStatusRequest(userId, eventId, request);
     }
 
+    @PatchMapping("/{eventId}/requests/{reqId}/confirm")
+    public ParticipationRequestDto confirmRequest(@PathVariable Long eventId,
+                                                  @PathVariable Long reqId) {
+        return requestService.confirmRequestByAdmin(eventId, reqId);
+    }
+
+    @PatchMapping("/{eventId}/requests/{reqId}/reject")
+    public ParticipationRequestDto rejectRequest(@PathVariable Long eventId,
+                                                 @PathVariable Long reqId) {
+        return requestService.rejectRequestByAdmin(eventId, reqId);
+    }
+
+
 
 //    public void authorizationVerification(Long userId) {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -17,4 +17,9 @@ public interface RequestService {
     public EventRequestStatusUpdateResult updateStatusRequest(Long userId, Long eventId,
                                                               EventRequestStatusUpdateRequest requestDto);
 
+    public ParticipationRequestDto confirmRequestByAdmin(Long eventId, Long reqId);
+
+    public ParticipationRequestDto rejectRequestByAdmin(Long eventId, Long reqId);
+
+
 }

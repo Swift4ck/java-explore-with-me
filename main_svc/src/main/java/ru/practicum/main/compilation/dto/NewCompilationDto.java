@@ -20,7 +20,7 @@ public class NewCompilationDto {
     private boolean pinned;
 
     @NotBlank
-    @Size(min = 3, max = 120)
+    @Size(min = 3, max = 50)
     private String title;
 
 }

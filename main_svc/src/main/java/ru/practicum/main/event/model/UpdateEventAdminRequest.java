@@ -21,11 +21,11 @@ public class UpdateEventAdminRequest {
 
     private Location location;
 
-    private boolean paid; //Новое значение флага о платности мероприятия
+    private Boolean paid; //Новое значение флага о платности мероприятия
 
     private Integer participantLimit; //limit polsovatelei
 
-    private boolean requestModeration; //Нужна ли пре-модерация заявок на участие
+    private Boolean requestModeration; //Нужна ли пре-модерация заявок на участие
 
     private String stateAction; //Новое состояние события
 

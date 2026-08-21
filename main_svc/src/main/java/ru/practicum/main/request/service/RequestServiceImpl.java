@@ -211,4 +211,70 @@ public class RequestServiceImpl implements RequestService {
         return result;
     }
 
+
+    @Override
+    @Transactional
+    public ParticipationRequestDto confirmRequestByAdmin(Long eventId, Long reqId) {
+        ParticipationRequest request = requestRepository.findById(reqId)
+                .orElseThrow(() -> new NotFoundException("Заявка с id=" + reqId + " не найдена"));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+
+        if (!request.getEvent().getId().equals(eventId)) {
+            throw new ConflictException("Заявка не относится к указанному событию");
+        }
+
+        if (request.getStatus() != Status.PENDING) {
+            throw new ConflictException("Нельзя подтвердить заявку в статусе " + request.getStatus());
+        }
+
+        if (event.getParticipantLimit() > 0) {
+            long confirmedCount = requestRepository.countByEventIdAndStatus(eventId, Status.CONFIRMED);
+            if (confirmedCount >= event.getParticipantLimit()) {
+                throw new ConflictException("Достигнут лимит одобренных заявок");
+            }
+        }
+
+        request.setStatus(Status.CONFIRMED);
+        requestRepository.save(request);
+
+        if (event.getParticipantLimit() > 0) {
+            long confirmedNow = requestRepository.countByEventIdAndStatus(eventId, Status.CONFIRMED);
+            if (confirmedNow >= event.getParticipantLimit()) {
+                List<ParticipationRequest> pendingRequests = requestRepository
+                        .findAllByEventIdAndStatus(eventId, Status.PENDING);
+                pendingRequests.forEach(r -> r.setStatus(Status.REJECTED));
+                requestRepository.saveAll(pendingRequests);
+            }
+        }
+
+        return ParticipationMapper.toParticipationRequestDto(request);
+    }
+
+    @Override
+    @Transactional
+    public ParticipationRequestDto rejectRequestByAdmin(Long eventId, Long reqId) {
+        ParticipationRequest request = requestRepository.findById(reqId)
+                .orElseThrow(() -> new NotFoundException("Заявка с id=" + reqId + " не найдена"));
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
+
+        if (!request.getEvent().getId().equals(eventId)) {
+            throw new ConflictException("Заявка не относится к указанному событию");
+        }
+
+        if (request.getStatus() != Status.PENDING) {
+            throw new ConflictException("Нельзя отклонить заявку в статусе " + request.getStatus());
+        }
+
+        request.setStatus(Status.REJECTED);
+        requestRepository.save(request);
+
+        return ParticipationMapper.toParticipationRequestDto(request);
+    }
+
+
+
 }

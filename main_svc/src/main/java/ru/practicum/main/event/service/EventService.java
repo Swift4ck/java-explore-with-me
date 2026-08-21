@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
+import ru.practicum.main.event.model.UpdateEventAdminRequest;
 import ru.practicum.main.event.model.UpdateEventUserRequest;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 import ru.practicum.main.request.model.EventRequestStatusUpdateRequest;
@@ -41,6 +42,11 @@ public interface EventService {
     );
 
     public EventFullDto getPublishedEventById(Long eventId, HttpServletRequest request);
+
+    public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request);
+
+    public List<EventFullDto> getAdminEvents(List<Long> users, List<String> states, List<Long> categories,
+                                      LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 
 
 }

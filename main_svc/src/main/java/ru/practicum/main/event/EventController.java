@@ -10,12 +10,15 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
+import ru.practicum.main.event.model.UpdateEventAdminRequest;
 import ru.practicum.main.event.model.UpdateEventUserRequest;
 import ru.practicum.main.event.service.EventService;
+import ru.practicum.main.exception.BadRequestException;
 import ru.practicum.main.request.dto.ParticipationRequestDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 @RestController
@@ -69,6 +72,9 @@ public class EventController {
         return eventService.getEventRequestsForUser(userId, eventId);
     }
 
+
+
+
 //    public void authorizationVerification(Long userId) {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        Object principal = authentication.getPrincipal();
@@ -111,6 +117,45 @@ public class EventController {
     @GetMapping("/events/{id}")
     public EventFullDto getPublishedEventById(@PathVariable Long id, HttpServletRequest request) {
         return eventService.getPublishedEventById(id, request);
+    }
+
+    @PatchMapping("/admin/events/{eventId}")
+    public EventFullDto updateEventByAdmin(@PathVariable Long eventId,
+                                           @Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest) {
+        return eventService.updateEventByAdmin(eventId, updateEventAdminRequest);
+    }
+
+
+    @GetMapping("/admin/events")
+    public List<EventFullDto> getAdminEvents(
+            @RequestParam(required = false) List<Long> users,
+            @RequestParam(required = false) List<String> states,
+            @RequestParam(required = false) List<Long> categories,
+            @RequestParam(required = false) String rangeStart,
+            @RequestParam(required = false) String rangeEnd,
+            @RequestParam(defaultValue = "0") int from,
+            @RequestParam(defaultValue = "10") int size) {
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime start = null;
+        LocalDateTime end = null;
+
+        if (rangeStart != null && !rangeStart.isBlank()) {
+            try {
+                start = LocalDateTime.parse(rangeStart, formatter);
+            } catch (DateTimeParseException e) {
+                throw new BadRequestException("Некорректный формат даты rangeStart: " + rangeStart);
+            }
+        }
+        if (rangeEnd != null && !rangeEnd.isBlank()) {
+            try {
+                end = LocalDateTime.parse(rangeEnd, formatter);
+            } catch (DateTimeParseException e) {
+                throw new BadRequestException("Некорректный формат даты rangeEnd: " + rangeEnd);
+            }
+        }
+
+        return eventService.getAdminEvents(users, states, categories, start, end, from, size);
     }
 
 

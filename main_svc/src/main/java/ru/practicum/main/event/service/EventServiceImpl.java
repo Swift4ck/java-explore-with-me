@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.main.category.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.endpoint.StatsClientService;
 import ru.practicum.main.enums.EventState;
@@ -15,6 +16,7 @@ import ru.practicum.main.event.dto.EventMapper;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.model.UpdateEventAdminRequest;
 import ru.practicum.main.event.model.UpdateEventUserRequest;
 import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.exception.BadRequestException;
@@ -30,11 +32,13 @@ import ru.practicum.main.request.repository.RequestRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -424,6 +428,168 @@ public class EventServiceImpl implements EventService {
         }
 
 
+    }
+
+
+    @Override
+    @Transactional
+    public EventFullDto updateEventByAdmin(Long eventId, UpdateEventAdminRequest request) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие с ID " + eventId + " не найдено"));
+
+        if (request == null) {
+            throw new BadRequestException("Запрос не может быть пустым");
+        }
+
+        if (request.getAnnotation() != null) {
+            if (request.getAnnotation().length() < 20 || request.getAnnotation().length() > 2000) {
+                throw new BadRequestException("Аннотация должна быть от 20 до 2000 символов");
+            }
+            event.setAnnotation(request.getAnnotation());
+        }
+
+        if (request.getDescription() != null) {
+            if (request.getDescription().length() < 20 || request.getDescription().length() > 7000) {
+                throw new BadRequestException("Описание должно быть от 20 до 7000 символов");
+            }
+            event.setDescription(request.getDescription());
+        }
+
+        if (request.getTitle() != null) {
+            if (request.getTitle().length() < 3 || request.getTitle().length() > 120) {
+                throw new BadRequestException("Заголовок должен быть от 3 до 120 символов");
+            }
+            event.setTitle(request.getTitle());
+        }
+
+        if (request.getCategory() != null) {
+            Category category = categoryRepository.findById(request.getCategory())
+                    .orElseThrow(() -> new NotFoundException("Категория с ID " + request.getCategory() + " не найдена"));
+            event.setCategory(category);
+        }
+
+        if (request.getEventDate() != null && !request.getEventDate().isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime eventDate;
+            try {
+                eventDate = LocalDateTime.parse(request.getEventDate(), formatter);
+            } catch (DateTimeParseException e) {
+                throw new BadRequestException("Некорректный формат даты. Используйте yyyy-MM-dd HH:mm:ss");
+            }
+
+            if (eventDate.isBefore(LocalDateTime.now().plusHours(2))) {
+                throw new ConflictException("Дата начала события должна быть не ранее чем за 2 час от текущего момента");
+            }
+            event.setEventDate(eventDate);
+        }
+
+        if (request.getLocation() != null) {
+            event.setLocation(request.getLocation());
+        }
+
+        if (request.getPaid() != null) {
+            event.setPaid(request.getPaid());
+        }
+        if (request.getParticipantLimit() != null) {
+            event.setParticipantLimit(request.getParticipantLimit());
+        }
+        if (request.getRequestModeration() != null) {
+            event.setRequestModeration(request.getRequestModeration());
+        }
+
+        if (request.getStateAction() != null) {
+            String action = request.getStateAction();
+            if ("PUBLISH_EVENT".equals(action)) {
+                if (event.getState() != EventState.PENDING) {
+                    throw new ConflictException("Событие можно публиковать только из состояния ожидания публикации");
+                }
+                event.setState(EventState.PUBLISHED);
+                event.setPublishedOn(LocalDateTime.now());
+            } else if ("REJECT_EVENT".equals(action)) {
+                if (event.getState() == EventState.PUBLISHED) {
+                    throw new ConflictException("Событие уже опубликовано, отклонить его нельзя");
+                }
+                event.setState(EventState.CANCELED);
+            } else {
+                throw new BadRequestException("Недопустимое значение stateAction: " + action);
+            }
+        }
+
+        Event updatedEvent = eventRepository.save(event);
+        return EventMapper.toEventFullDto(updatedEvent);
+    }
+
+
+    @Override
+    public List<EventFullDto> getAdminEvents(List<Long> users, List<String> states, List<Long> categories,
+                                             LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
+        List<EventState> stateEnums = new ArrayList<>();
+        if (states != null) {
+            for (String state : states) {
+                try {
+                    stateEnums.add(EventState.valueOf(state.trim().toUpperCase()));
+                } catch (IllegalArgumentException e) {
+                    throw new BadRequestException("Недопустимое значение состояния: " + state);
+                }
+            }
+        }
+
+        List<Event> allEvents = eventRepository.findAll();
+
+        List<Event> filtered = new ArrayList<>();
+        for (Event event : allEvents) {
+            boolean matches = true;
+
+            if (users != null && !users.isEmpty()) {
+                if (!users.contains(event.getInitiator())) {
+                    matches = false;
+                }
+            }
+            if (!stateEnums.isEmpty()) {
+                if (!stateEnums.contains(event.getState())) {
+                    matches = false;
+                }
+            }
+            if (categories != null && !categories.isEmpty()) {
+                if (event.getCategory() == null || !categories.contains(event.getCategory().getId())) {
+                    matches = false;
+                }
+            }
+            if (rangeStart != null) {
+                if (event.getEventDate() == null || event.getEventDate().isBefore(rangeStart)) {
+                    matches = false;
+                }
+            }
+            if (rangeEnd != null) {
+                if (event.getEventDate() == null || event.getEventDate().isAfter(rangeEnd)) {
+                    matches = false;
+                }
+            }
+
+            if (matches) {
+                filtered.add(event);
+            }
+        }
+
+        int total = filtered.size();
+        int fromIndex = Math.min(from, total);
+        int toIndex = Math.min(from + size, total);
+        List<Event> pageEvents = filtered.subList(fromIndex, toIndex);
+
+        List<Long> eventIds = new ArrayList<>();
+        for (Event event : pageEvents) {
+            eventIds.add(event.getId());
+        }
+        Map<Long, Long> viewsMap = statsClientService.getViews(eventIds);
+
+        List<EventFullDto> result = new ArrayList<>();
+        for (Event event : pageEvents) {
+            EventFullDto dto = EventMapper.toEventFullDto(event);
+            dto.setViews(viewsMap.getOrDefault(event.getId(), 0L));
+            result.add(dto);
+        }
+
+        return result;
     }
 
 
