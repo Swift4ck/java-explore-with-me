@@ -120,6 +120,10 @@ public class RequestServiceImpl implements RequestService {
             throw new ForbiddenException("Пользователь может отменять только свои заявки");
         }
 
+        if (cancelRequest.getStatus() == Status.CONFIRMED) {
+            throw new ConflictException("Нельзя отменить уже принятую заявку");
+        }
+
         cancelRequest.setStatus(Status.CANCELED);
         requestRepository.save(cancelRequest);
         return ParticipationMapper.toParticipationRequestDto(cancelRequest);
@@ -155,15 +159,6 @@ public class RequestServiceImpl implements RequestService {
         if (newStatus == Status.CONFIRMED) {
             long currentConfirmed = requestRepository.countByEventIdAndStatus(eventId, Status.CONFIRMED);
             if (currentConfirmed >= event.getParticipantLimit()) {
-
-                for (Long requestId : requestDto.getRequestIds()) {
-                    ParticipationRequest participationRequest = requestRepository.findById(requestId)
-                            .orElseThrow(()
-                                    -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
-
-                    participationRequest.setStatus(Status.REJECTED);
-                    requestRepository.save(participationRequest);
-                }
                 throw new ConflictException("Достигнут лимит одобренных заявок");
             }
         }
@@ -182,7 +177,7 @@ public class RequestServiceImpl implements RequestService {
                                 -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
 
                 if (!participationRequest.getStatus().equals(Status.PENDING)) {
-                    throw new BadRequestException("Подтверждать статус можно только заявки со статусом PENDING");
+                    throw new ConflictException("Подтверждать статус можно только заявки со статусом PENDING");
                 }
 
                 confirmed.add(ParticipationMapper.toParticipationRequestDto(participationRequest));

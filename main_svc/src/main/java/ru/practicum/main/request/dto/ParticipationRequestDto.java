@@ -15,11 +15,11 @@ public class ParticipationRequestDto {
 
     private String created; //Дата и время создания заявки
 
-    private Event event; //Идентификатор события
+    private Long event; //Идентификатор события
 
     private Long id;
 
-    private User requester; //Идентификатор пользователя, отправившего заявку
+    private Long requester; //Идентификатор пользователя, отправившего заявку
 
     private Status status; //Статус заявки
 

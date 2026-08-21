@@ -510,7 +510,7 @@ public class EventServiceImpl implements EventService {
                 }
                 event.setState(EventState.CANCELED);
             } else {
-                throw new BadRequestException("Недопустимое значение stateAction: " + action);
+                throw new ConflictException("Недопустимое значение stateAction: " + action);
             }
         }
 
