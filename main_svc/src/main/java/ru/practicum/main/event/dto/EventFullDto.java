@@ -2,7 +2,7 @@ package ru.practicum.main.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import ru.practicum.main.category.Category;
+import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.enums.EventState;
 import ru.practicum.main.event.model.Location;
 
@@ -19,7 +19,7 @@ public class EventFullDto {
 
     private String annotation; //краткое описание
 
-    private Category category;
+    private CategoryDto category;
 
     private LocalDateTime eventDate;
 

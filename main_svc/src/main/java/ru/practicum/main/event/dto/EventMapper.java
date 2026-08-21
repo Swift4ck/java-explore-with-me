@@ -1,7 +1,10 @@
 package ru.practicum.main.event.dto;
 
+import ru.practicum.main.category.dto.CategoryDto;
+import ru.practicum.main.category.dto.CategoryMapper;
 import ru.practicum.main.category.repository.CategoryRepository;
 import ru.practicum.main.event.model.Event;
+import ru.practicum.main.event.model.Location;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -33,13 +36,27 @@ public class EventMapper {
     }
 
     public static EventFullDto toEventFullDto(Event event) {
+        CategoryDto categoryDto = null;
+        if (event.getCategory() != null) {
+            categoryDto = new CategoryDto(event.getCategory().getId(), event.getCategory().getName());
+        }
+
+        Location locationDto = null;
+        if (event.getLocation() != null) {
+            locationDto = new Location(
+                    event.getLocation().getId(),
+                    event.getLocation().getLat(),
+                    event.getLocation().getLon()
+            );
+        }
+
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
-                .category(event.getCategory())
+                .category(categoryDto)
                 .eventDate(event.getEventDate())
                 .initiator(event.getInitiator())
-                .location(event.getLocation())
+                .location(locationDto)
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .confirmedRequests(event.getConfirmedRequests())
@@ -51,14 +68,14 @@ public class EventMapper {
                 .state(event.getState())
                 .views(event.getViews() != null ? event.getViews() : 0L)
                 .build();
-
     }
 
     public static EventFullDto toEventFullDtoAndViews(Event event, Long views) {
+
         return EventFullDto.builder()
                 .id(event.getId())
                 .annotation(event.getAnnotation())
-                .category(event.getCategory())
+                .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .eventDate(event.getEventDate())
                 .initiator(event.getInitiator())
                 .location(event.getLocation())
@@ -77,11 +94,13 @@ public class EventMapper {
     }
 
     public static EventShortDto toEventShortDto(Event event) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String eventDate = event.getEventDate() != null ? event.getEventDate().format(formatter) : null;
 
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
                 .confirmedRequests(event.getConfirmedRequests())
-                .eventDate(event.getEventDate().toString())
+                .eventDate(eventDate)
                 .id(event.getId())
                 .initiator(event.getInitiator())
                 .paid(event.getPaid())
@@ -91,16 +110,18 @@ public class EventMapper {
     }
 
     public static EventShortDto toEventShortDtoAndViews(Event event, Long views) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String eventDate = event.getEventDate() != null ? event.getEventDate().format(formatter) : null;
 
         return EventShortDto.builder()
                 .annotation(event.getAnnotation())
                 .confirmedRequests(event.getConfirmedRequests())
-                .eventDate(event.getEventDate().toString())
+                .eventDate(eventDate)
                 .id(event.getId())
                 .initiator(event.getInitiator())
                 .paid(event.getPaid())
                 .title(event.getTitle())
-                .views(event.getViews() != null ? event.getViews() : 0L)
+                .views(views)
                 .build();
     }
 
