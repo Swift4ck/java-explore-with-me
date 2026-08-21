@@ -1,11 +1,9 @@
 package ru.practicum.main.request.dto;
 
-import ru.practicum.main.event.repository.EventRepository;
 import ru.practicum.main.request.model.EventRequestStatusUpdateRequest;
 import ru.practicum.main.request.model.ParticipationRequest;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+
 
 public class ParticipationMapper {
 
