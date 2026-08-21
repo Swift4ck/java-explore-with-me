@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.enums.EventState;
-import ru.practicum.main.event.model.Location;
 
 import java.time.LocalDateTime;
 
@@ -26,7 +25,7 @@ public class EventFullDto {
     private Long initiator; //кто создал
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    private Location location;
+    private LocationDto location;
 
     private Boolean paid; //Нужно ли оплачивать участие
 

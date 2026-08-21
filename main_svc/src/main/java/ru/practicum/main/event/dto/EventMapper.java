@@ -41,9 +41,9 @@ public class EventMapper {
             categoryDto = new CategoryDto(event.getCategory().getId(), event.getCategory().getName());
         }
 
-        Location locationDto = null;
+        LocationDto locationDto = null;
         if (event.getLocation() != null) {
-            locationDto = new Location(
+            locationDto = new LocationDto(
                     event.getLocation().getId(),
                     event.getLocation().getLat(),
                     event.getLocation().getLon()
@@ -78,7 +78,7 @@ public class EventMapper {
                 .category(CategoryMapper.toCategoryDto(event.getCategory()))
                 .eventDate(event.getEventDate())
                 .initiator(event.getInitiator())
-                .location(event.getLocation())
+                .location(locationDto(event.getLocation()))
                 .paid(event.getPaid())
                 .title(event.getTitle())
                 .confirmedRequests(event.getConfirmedRequests())
@@ -142,6 +142,17 @@ public class EventMapper {
         event.setTitle(eventShortDto.getTitle());
 
         return event;
+    }
+
+    public static LocationDto locationDto(Location location) {
+
+        LocationDto locationDto = new LocationDto();
+
+        locationDto.setId(location.getId());
+        locationDto.setLat(location.getLat());
+        locationDto.setLon(locationDto.getLon());
+
+        return locationDto;
     }
 
 

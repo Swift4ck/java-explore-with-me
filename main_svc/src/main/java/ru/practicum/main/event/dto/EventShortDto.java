@@ -1,6 +1,7 @@
 package ru.practicum.main.event.dto;
 
 import lombok.*;
+import ru.practicum.main.category.dto.CategoryDto;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -11,7 +12,7 @@ public class EventShortDto {
 
     private String annotation; //Краткое описаниe
 
-    private Long category;
+    private CategoryDto category;
 
     private Integer confirmedRequests; //Количество одобренных заявок на участие в данном событии
 

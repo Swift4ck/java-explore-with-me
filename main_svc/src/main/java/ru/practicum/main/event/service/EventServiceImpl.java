@@ -125,6 +125,10 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("Данные не корректны");
         }
 
+        if (updateEvent.getState() == EventState.PUBLISHED) {
+            throw new ConflictException("Нельзя изменить опубликованное событие");
+        }
+
         if (updateEventUserRequest.getAnnotation() != null && !updateEventUserRequest.getAnnotation().isEmpty()) {
             updateEvent.setAnnotation(updateEventUserRequest.getAnnotation());
         }
@@ -377,7 +381,7 @@ public class EventServiceImpl implements EventService {
         if ((checkEvent.getCategory() != null)) {
 
 
-            updateEvent.setCategory(categoryRepository.findById(checkEvent.getCategory())
+            updateEvent.setCategory(categoryRepository.findById(checkEvent.getCategory().getId())
                     .orElseThrow(()
                             -> new NotFoundException("Не найдена заявка на участие в событии:" + checkEvent.getCategory())));
         }
