@@ -201,8 +201,8 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    @Transactional
     @Override
+    @Transactional
     public EventRequestStatusUpdateResult updateStatusRequest(Long userId, Long eventId,
                                                               EventRequestStatusUpdateRequest requestDto) {
         log.info("Запрос на изменение статуса заявок. Пользователь: {}, Событие: {}", userId, eventId);
@@ -223,7 +223,6 @@ public class EventServiceImpl implements EventService {
             throw new ForbiddenException("Событие не найдено или недоступно");
         }
 
-
         if (event.getParticipantLimit() == 0 || !event.getRequestModeration()) {
             throw new ConflictException("Для данного события подтверждение заявок не требуется");
         }
@@ -231,15 +230,6 @@ public class EventServiceImpl implements EventService {
         if (newStatus == Status.CONFIRMED) {
             long currentConfirmed = requestRepository.countByEventIdAndStatus(eventId, Status.CONFIRMED);
             if (currentConfirmed >= event.getParticipantLimit()) {
-
-                for (Long requestId : requestDto.getRequestIds()) {
-                    ParticipationRequest participationRequest = requestRepository.findById(requestId)
-                            .orElseThrow(()
-                                    -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
-
-                    participationRequest.setStatus(Status.REJECTED);
-                    requestRepository.save(participationRequest);
-                }
                 throw new ConflictException("Достигнут лимит одобренных заявок");
             }
         }
@@ -251,40 +241,36 @@ public class EventServiceImpl implements EventService {
         int countCycle = 0;
 
         for (Long requestId : requestDto.getRequestIds()) {
+            ParticipationRequest participationRequest = requestRepository.findById(requestId)
+                    .orElseThrow(() -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
 
-            if (actualLimit + countCycle < event.getParticipantLimit() && requestDto.getStatus().equals(Status.CONFIRMED)) {
-                ParticipationRequest participationRequest = requestRepository.findById(requestId)
-                        .orElseThrow(()
-                                -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
-
-                if (!participationRequest.getStatus().equals(Status.PENDING)) {
-                    throw new BadRequestException("Подтверждать статус можно только заявки со статусом PENDING");
-                }
-
-                confirmed.add(ParticipationMapper.toParticipationRequestDto(participationRequest));
-                countCycle++;
-            } else {
-                ParticipationRequest participationRequest = requestRepository.findById(requestId)
-                        .orElseThrow(()
-                                -> new NotFoundException("Не найдена заявка на участие в событии:" + requestId));
-
-                rejected.add(ParticipationMapper.toParticipationRequestDto(participationRequest));
+            if (!participationRequest.getEvent().getId().equals(eventId)) {
+                throw new ConflictException("Заявка не относится к указанному событию");
             }
 
+            if (!participationRequest.getStatus().equals(Status.PENDING)) {
+                throw new ConflictException("Можно изменять только заявки в статусе PENDING");
+            }
+
+            if (newStatus == Status.CONFIRMED) {
+                if (actualLimit + countCycle < event.getParticipantLimit()) {
+                    participationRequest.setStatus(Status.CONFIRMED);
+                    requestRepository.save(participationRequest);
+                    confirmed.add(ParticipationMapper.toParticipationRequestDto(participationRequest));
+                    countCycle++;
+                } else {
+                    participationRequest.setStatus(Status.REJECTED);
+                    requestRepository.save(participationRequest);
+                    rejected.add(ParticipationMapper.toParticipationRequestDto(participationRequest));
+                }
+            } else {
+                participationRequest.setStatus(Status.REJECTED);
+                requestRepository.save(participationRequest);
+                rejected.add(ParticipationMapper.toParticipationRequestDto(participationRequest));
+            }
         }
 
-        for (ParticipationRequestDto dto : confirmed) {
-            dto.setStatus(requestDto.getStatus());
-            requestRepository.save(ParticipationMapper.toParticipationRequest(dto));
-        }
-
-        for (ParticipationRequestDto dto : rejected) {
-            dto.setStatus(Status.REJECTED);
-            requestRepository.save(ParticipationMapper.toParticipationRequest(dto));
-        }
-
-        EventRequestStatusUpdateResult result = new EventRequestStatusUpdateResult(confirmed, rejected);
-        return result;
+        return new EventRequestStatusUpdateResult(confirmed, rejected);
     }
 
 
