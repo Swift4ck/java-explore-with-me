@@ -300,9 +300,9 @@ public class EventServiceImpl implements EventService {
             int size,
             HttpServletRequest request) {
 
-//        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-//            throw new BadRequestException("Дата начала не может быть позже даты окончания");
-//        }
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new BadRequestException("Дата начала не может быть позже даты окончания");
+        }
 
         statsClientService.sendHit("ewm-main-service", "/events", request.getRemoteAddr());
 
@@ -362,6 +362,11 @@ public class EventServiceImpl implements EventService {
             result = events.stream()
                     .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
                     .collect(Collectors.toList());
+        }
+
+        System.out.println("После фильтров events.size() = " + events.size());
+        for (Event e : events) {
+            System.out.println("Событие id=" + e.getId() + ", paid=" + e.getPaid() + ", category=" + (e.getCategory()!=null?e.getCategory().getId():"null") + ", eventDate=" + e.getEventDate());
         }
 
         return result;
