@@ -204,14 +204,13 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Мероприятие с ID " + eventId + " не найдено"));
 
-        List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId)
-                .stream()
-                .filter(pr -> pr.getEvent().getInitiator().equals(userId))
-                .collect(Collectors.toList());
+        List<ParticipationRequest> participationRequestList = new ArrayList<>();
 
-        return requests.stream()
+        participationRequestList.add(requestRepository.findParticipationRequestByEventIdAndRequesterId(eventId, userId));
+
+        return participationRequestList.stream()
                 .map(ParticipationMapper::toParticipationRequestDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -350,6 +349,7 @@ public class EventServiceImpl implements EventService {
 
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> viewsMap = statsClientService.getViews(eventIds);
+
         List<EventShortDto> result = events.stream()
                 .map(event -> EventMapper.toEventShortDtoAndViews(event, viewsMap.getOrDefault(event.getId(), 0L)))
                 .collect(Collectors.toList());
@@ -368,7 +368,6 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
-    @Transactional
     public EventFullDto getPublishedEventById(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
@@ -379,10 +378,10 @@ public class EventServiceImpl implements EventService {
 
         statsClientService.sendHit("ewm-main-service", "/events/" + eventId, request.getRemoteAddr());
 
-        event.setViews(event.getViews() + 1);
-        eventRepository.save(event);
+        Map<Long, Long> viewsMap = statsClientService.getViews(List.of(eventId));
+        Long views = viewsMap.getOrDefault(eventId, 0L);
 
-        return EventMapper.toEventFullDtoAndViews(event, event.getViews());
+        return EventMapper.toEventFullDtoAndViews(event, views);
     }
 
 
