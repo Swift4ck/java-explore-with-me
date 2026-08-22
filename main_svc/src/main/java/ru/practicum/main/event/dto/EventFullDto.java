@@ -20,11 +20,11 @@ public class EventFullDto {
 
     private CategoryDto category;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
 
     private Long initiator; //кто создал
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocationDto location;
 
     private Boolean paid; //Нужно ли оплачивать участие

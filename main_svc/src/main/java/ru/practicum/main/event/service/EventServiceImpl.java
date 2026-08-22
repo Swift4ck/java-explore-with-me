@@ -114,7 +114,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventShortDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
+    public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         log.info("Получен запрос на изменение мероприятия от пользователя:{} для мероприятия{}", userId, eventId);
 
 
@@ -191,7 +191,8 @@ public class EventServiceImpl implements EventService {
 
         Event saveEvent = eventRepository.save(updateEvent);
 
-        return EventMapper.toEventShortDto(saveEvent);
+        Long views = saveEvent.getViews() != null ? saveEvent.getViews() : 0L;
+        return EventMapper.toEventFullDtoAndViews(saveEvent, views);
     }
 
 

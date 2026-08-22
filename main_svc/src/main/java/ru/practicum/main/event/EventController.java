@@ -56,7 +56,7 @@ public class EventController {
     }
 
     @PatchMapping("/users/{userId}/events/{eventId}")
-    public EventShortDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
+    public EventFullDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
                                      @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
 
 //        authorizationVerification(userId);

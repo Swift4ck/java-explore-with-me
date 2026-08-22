@@ -21,7 +21,7 @@ public interface EventService {
 
     public EventFullDto getFullEventById(Long userId, Long eventId);
 
-    public EventShortDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
+    public EventFullDto updateEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
 
     public List<ParticipationRequestDto> getEventRequestsForUser(Long userId, Long eventId);
 
