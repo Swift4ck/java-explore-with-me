@@ -106,7 +106,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getFullEventById(Long userId, Long eventId) {
         log.info("Получен запрос на полную информацию мероприятия от пользователя:{} для мероприятия{}", userId, eventId);
 
-        Event getEvent = eventRepository.findByIdAndInitiator(userId, eventId)
+        Event getEvent = eventRepository.findByIdAndInitiator(eventId, userId)
                 .orElseThrow(() -> new NotFoundException("Мероприятие с ID " + eventId + " не найдено"));
 
         return EventMapper.toEventFullDto(getEvent);

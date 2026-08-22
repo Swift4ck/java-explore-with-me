@@ -125,6 +125,8 @@ public class EventMapper {
                 .initiator(event.getInitiator())
                 .paid(event.getPaid())
                 .title(event.getTitle())
+                .category(event.getCategory() != null ?
+                        new CategoryDto(event.getCategory().getId(), event.getCategory().getName()) : null)
                 .views(views)
                 .build();
     }
