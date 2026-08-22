@@ -363,12 +363,7 @@ public class EventServiceImpl implements EventService {
                     .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
                     .collect(Collectors.toList());
         }
-
-        System.out.println("После фильтров events.size() = " + events.size());
-        for (Event e : events) {
-            System.out.println("Событие id=" + e.getId() + ", paid=" + e.getPaid() + ", category=" + (e.getCategory()!=null?e.getCategory().getId():"null") + ", eventDate=" + e.getEventDate());
-        }
-
+        
         return result;
     }
 
