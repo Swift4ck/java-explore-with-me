@@ -204,13 +204,14 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Мероприятие с ID " + eventId + " не найдено"));
 
-        List<ParticipationRequest> participationRequestList = new ArrayList<>();
+        List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId)
+                .stream()
+                .filter(pr -> pr.getEvent().getInitiator().equals(userId))
+                .collect(Collectors.toList());
 
-        participationRequestList.add(requestRepository.findParticipationRequestByEventIdAndRequesterId(eventId, userId));
-
-        return participationRequestList.stream()
+        return requests.stream()
                 .map(ParticipationMapper::toParticipationRequestDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
 
@@ -380,7 +381,7 @@ public class EventServiceImpl implements EventService {
             event.setViews(0L);
         }
         event.setViews(event.getViews() + 1);
-        eventRepository.save(event);
+        event = eventRepository.save(event);
 
         return EventMapper.toEventFullDtoAndViews(event, event.getViews());
     }
