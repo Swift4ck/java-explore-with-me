@@ -286,7 +286,7 @@ public class EventServiceImpl implements EventService {
     }
 
 
-    верно?
+
     @Override
     public List<EventShortDto> getPublishedEvents(
             String text,

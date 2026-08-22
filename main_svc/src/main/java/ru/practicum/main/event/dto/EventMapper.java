@@ -88,6 +88,8 @@ public class EventMapper {
                 .publishedOn(event.getPublishedOn())
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
+                .category(event.getCategory() != null ?
+                        new CategoryDto(event.getCategory().getId(), event.getCategory().getName()) : null)
                 .views(views)
                 .build();
 
@@ -105,6 +107,8 @@ public class EventMapper {
                 .initiator(event.getInitiator())
                 .paid(event.getPaid())
                 .title(event.getTitle())
+                .category(event.getCategory() != null ?
+                        new CategoryDto(event.getCategory().getId(), event.getCategory().getName()) : null)
                 .views(event.getViews() != null ? event.getViews() : 0L)
                 .build();
     }
@@ -150,7 +154,7 @@ public class EventMapper {
 
         locationDto.setId(location.getId());
         locationDto.setLat(location.getLat());
-        locationDto.setLon(locationDto.getLon());
+        locationDto.setLon(location.getLon());
 
         return locationDto;
     }
