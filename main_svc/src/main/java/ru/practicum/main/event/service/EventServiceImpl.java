@@ -286,7 +286,6 @@ public class EventServiceImpl implements EventService {
     }
 
 
-
     @Override
     public List<EventShortDto> getPublishedEvents(
             String text,
@@ -363,7 +362,7 @@ public class EventServiceImpl implements EventService {
                     .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
                     .collect(Collectors.toList());
         }
-        
+
         return result;
     }
 
