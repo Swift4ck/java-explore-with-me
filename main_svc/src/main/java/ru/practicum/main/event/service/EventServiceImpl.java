@@ -326,11 +326,11 @@ public class EventServiceImpl implements EventService {
                         .collect(Collectors.toList());
             }
         }
-        if (paid != null) {
-            events = events.stream()
-                    .filter(e -> e.getPaid() != null && e.getPaid().equals(paid))
-                    .collect(Collectors.toList());
-        }
+//        if (paid != null) {
+//            events = events.stream()
+//                    .filter(e -> e.getPaid() != null && e.getPaid().equals(paid))
+//                    .collect(Collectors.toList());
+//        }
         if (rangeStart != null) {
             events = events.stream()
                     .filter(e -> e.getEventDate() != null && !e.getEventDate().isBefore(rangeStart))
