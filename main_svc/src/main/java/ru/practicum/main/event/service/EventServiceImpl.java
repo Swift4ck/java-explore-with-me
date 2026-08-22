@@ -33,10 +33,7 @@ import ru.practicum.main.request.repository.RequestRepository;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -50,6 +47,7 @@ public class EventServiceImpl implements EventService {
     private final StatsClientService statsClientService;
     private final CategoryRepository categoryRepository;
 
+    private final Set<String> viewedIps = new HashSet<>();
 
     @Override
     @Transactional
@@ -377,11 +375,16 @@ public class EventServiceImpl implements EventService {
 
         statsClientService.sendHit("ewm-main-service", "/events/" + eventId, request.getRemoteAddr());
 
-        if (event.getViews() == null) {
-            event.setViews(0L);
+        String ip = request.getRemoteAddr();
+        String key = eventId + ":" + ip;
+        if (!viewedIps.contains(key)) {
+            viewedIps.add(key);
+            if (event.getViews() == null) {
+                event.setViews(0L);
+            }
+            event.setViews(event.getViews() + 1);
+            event = eventRepository.save(event);
         }
-        event.setViews(event.getViews() + 1);
-        event = eventRepository.save(event);
 
         return EventMapper.toEventFullDtoAndViews(event, event.getViews());
     }
