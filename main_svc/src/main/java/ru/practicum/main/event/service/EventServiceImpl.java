@@ -347,11 +347,8 @@ public class EventServiceImpl implements EventService {
         int end = Math.min(from + size, events.size());
         events = events.subList(start, end);
 
-        List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
-        Map<Long, Long> viewsMap = statsClientService.getViews(eventIds);
-
         List<EventShortDto> result = events.stream()
-                .map(event -> EventMapper.toEventShortDtoAndViews(event, viewsMap.getOrDefault(event.getId(), 0L)))
+                .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
                 .collect(Collectors.toList());
 
         if ("VIEWS".equalsIgnoreCase(sort)) {
@@ -359,7 +356,7 @@ public class EventServiceImpl implements EventService {
         } else if ("EVENT_DATE".equalsIgnoreCase(sort)) {
             events.sort(Comparator.comparing(Event::getEventDate));
             result = events.stream()
-                    .map(event -> EventMapper.toEventShortDtoAndViews(event, viewsMap.getOrDefault(event.getId(), 0L)))
+                    .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
                     .collect(Collectors.toList());
         }
 
@@ -368,6 +365,7 @@ public class EventServiceImpl implements EventService {
 
 
     @Override
+    @Transactional
     public EventFullDto getPublishedEventById(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new NotFoundException("Событие с id=" + eventId + " не найдено"));
@@ -378,10 +376,13 @@ public class EventServiceImpl implements EventService {
 
         statsClientService.sendHit("ewm-main-service", "/events/" + eventId, request.getRemoteAddr());
 
-        Map<Long, Long> viewsMap = statsClientService.getViews(List.of(eventId));
-        Long views = viewsMap.getOrDefault(eventId, 0L);
+        if (event.getViews() == null) {
+            event.setViews(0L);
+        }
+        event.setViews(event.getViews() + 1);
+        eventRepository.save(event);
 
-        return EventMapper.toEventFullDtoAndViews(event, views);
+        return EventMapper.toEventFullDtoAndViews(event, event.getViews());
     }
 
 
