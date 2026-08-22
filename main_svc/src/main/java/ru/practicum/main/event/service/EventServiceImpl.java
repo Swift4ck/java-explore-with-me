@@ -169,10 +169,18 @@ public class EventServiceImpl implements EventService {
 
         String stateString = updateEventUserRequest.getStateAction();
         if (stateString != null && !stateString.trim().isEmpty()) {
-            try {
-                EventState newState = EventState.valueOf(stateString.trim().toUpperCase());
-                updateEvent.setState(newState);
-            } catch (IllegalArgumentException e) {
+            String action = stateString.trim().toUpperCase();
+            if ("CANCEL_REVIEW".equals(action)) {
+                if (updateEvent.getState() != EventState.PENDING) {
+                    throw new ConflictException("Отменить можно только событие в статусе PENDING");
+                }
+                updateEvent.setState(EventState.CANCELED);
+            } else if ("SEND_TO_REVIEW".equals(action)) {
+                if (updateEvent.getState() != EventState.CANCELED) {
+                    throw new ConflictException("Отправить на повторную модерацию можно только отменённое событие");
+                }
+                updateEvent.setState(EventState.PENDING);
+            } else {
                 throw new BadRequestException("Недопустимое значение состояния: " + stateString);
             }
         }
@@ -278,6 +286,7 @@ public class EventServiceImpl implements EventService {
     }
 
 
+    верно?
     @Override
     public List<EventShortDto> getPublishedEvents(
             String text,
@@ -297,8 +306,7 @@ public class EventServiceImpl implements EventService {
 
         statsClientService.sendHit("ewm-main-service", "/events", request.getRemoteAddr());
 
-        PageRequest pageable = PageRequest.of(from, size);
-        List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED, pageable);
+        List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
 
         if (text != null && !text.isBlank()) {
@@ -334,6 +342,10 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
+        int start = Math.min(from, events.size());
+        int end = Math.min(from + size, events.size());
+        events = events.subList(start, end);
+
         List<Long> eventIds = events.stream().map(Event::getId).collect(Collectors.toList());
         Map<Long, Long> viewsMap = statsClientService.getViews(eventIds);
 
@@ -352,6 +364,7 @@ public class EventServiceImpl implements EventService {
 
         return result;
     }
+
 
     @Override
     public EventFullDto getPublishedEventById(Long eventId, HttpServletRequest request) {
