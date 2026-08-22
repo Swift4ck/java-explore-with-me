@@ -309,7 +309,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
 
-        if (text != null && !text.isBlank()) {
+        if (text != null && !text.isBlank() && !"0".equals(text)) {
             String lower = text.toLowerCase();
             events = events.stream()
                     .filter(e -> (e.getAnnotation() != null && e.getAnnotation().toLowerCase().contains(lower)) ||
@@ -317,9 +317,14 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
         if (categories != null && !categories.isEmpty()) {
-            events = events.stream()
-                    .filter(e -> e.getCategory() != null && categories.contains(e.getCategory().getId()))
+            List<Long> validCategories = categories.stream()
+                    .filter(c -> c != null && c != 0)
                     .collect(Collectors.toList());
+            if (!validCategories.isEmpty()) {
+                events = events.stream()
+                        .filter(e -> e.getCategory() != null && validCategories.contains(e.getCategory().getId()))
+                        .collect(Collectors.toList());
+            }
         }
         if (paid != null) {
             events = events.stream()
