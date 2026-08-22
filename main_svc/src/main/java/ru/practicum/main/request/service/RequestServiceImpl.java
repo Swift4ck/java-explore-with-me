@@ -21,6 +21,7 @@ import ru.practicum.main.request.repository.RequestRepository;
 import ru.practicum.main.user.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,7 +69,7 @@ public class RequestServiceImpl implements RequestService {
         }
 
         ParticipationRequest participationRequest = new ParticipationRequest();
-        participationRequest.setCreated(LocalDateTime.now());
+        participationRequest.setCreated(LocalDateTime.now().truncatedTo(ChronoUnit.MICROS));
 
         participationRequest.setEvent(checkEvent);
 
