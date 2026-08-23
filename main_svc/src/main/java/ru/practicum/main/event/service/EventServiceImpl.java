@@ -307,7 +307,7 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
-        if (text != null && !text.isBlank()) {
+        if (text != null && !text.isBlank() && !"0".equals(text)) {
             String lower = text.toLowerCase();
             events = events.stream()
                     .filter(e -> (e.getAnnotation() != null && e.getAnnotation().toLowerCase().contains(lower)) ||
