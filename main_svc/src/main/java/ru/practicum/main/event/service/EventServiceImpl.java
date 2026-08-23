@@ -325,11 +325,6 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        if (paid != null) {
-            events = events.stream()
-                    .filter(e -> e.getPaid() != null && e.getPaid().equals(paid))
-                    .collect(Collectors.toList());
-        }
 
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new BadRequestException("Дата начала не может быть позже даты окончания");
