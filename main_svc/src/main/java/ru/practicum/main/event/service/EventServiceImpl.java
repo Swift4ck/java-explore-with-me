@@ -357,7 +357,7 @@ public class EventServiceImpl implements EventService {
 
         if ("VIEWS".equalsIgnoreCase(sort)) {
             events.sort(Comparator.comparing(Event::getViews, Comparator.nullsLast(Comparator.naturalOrder())));
-        } else { 
+        } else {
             events.sort(Comparator.comparing(Event::getEventDate));
         }
 
