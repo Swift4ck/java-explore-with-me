@@ -285,7 +285,6 @@ public class EventServiceImpl implements EventService {
         return new EventRequestStatusUpdateResult(confirmed, rejected);
     }
 
-
     @Override
     public List<EventShortDto> getPublishedEvents(
             String text,
@@ -332,13 +331,21 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        if (rangeStart != null && rangeEnd != null && rangeStart.isBefore(rangeEnd)) {
+        if (rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+            throw new BadRequestException("Дата начала не может быть позже даты окончания");
+        }
+
+        if (rangeStart != null) {
             final LocalDateTime finalStart = rangeStart;
+            events = events.stream()
+                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isBefore(finalStart))
+                    .collect(Collectors.toList());
+        }
+
+        if (rangeEnd != null) {
             final LocalDateTime finalEnd = rangeEnd;
             events = events.stream()
-                    .filter(e -> e.getEventDate() != null &&
-                            !e.getEventDate().isBefore(finalStart) &&
-                            !e.getEventDate().isAfter(finalEnd))
+                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isAfter(finalEnd))
                     .collect(Collectors.toList());
         }
 
