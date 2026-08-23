@@ -306,7 +306,7 @@ public class EventServiceImpl implements EventService {
 
         List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
-        if (text != null && !text.isBlank() && !"0".equals(text)) {
+        if (text != null && !text.isBlank()) {
             String lower = text.toLowerCase();
             events = events.stream()
                     .filter(e -> (e.getAnnotation() != null && e.getAnnotation().toLowerCase().contains(lower)) ||
@@ -331,7 +331,7 @@ public class EventServiceImpl implements EventService {
                     .collect(Collectors.toList());
         }
 
-        if (rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
+        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
             throw new BadRequestException("Дата начала не может быть позже даты окончания");
         }
 
@@ -357,7 +357,7 @@ public class EventServiceImpl implements EventService {
 
         if ("VIEWS".equalsIgnoreCase(sort)) {
             events.sort(Comparator.comparing(Event::getViews, Comparator.nullsLast(Comparator.naturalOrder())));
-        } else {
+        } else { 
             events.sort(Comparator.comparing(Event::getEventDate));
         }
 
