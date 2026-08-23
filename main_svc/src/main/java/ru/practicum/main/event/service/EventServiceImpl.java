@@ -299,22 +299,22 @@ public class EventServiceImpl implements EventService {
             int size,
             HttpServletRequest request) {
 
-        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            throw new BadRequestException("Дата начала не может быть позже даты окончания");
-        }
-
         statsClientService.sendHit("ewm-main-service", "/events", request.getRemoteAddr());
+
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now();
+        }
 
         List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
-
-        if (text != null && !text.isBlank() && !"0".equals(text)) {
+        if (text != null && !text.isBlank()) {
             String lower = text.toLowerCase();
             events = events.stream()
                     .filter(e -> (e.getAnnotation() != null && e.getAnnotation().toLowerCase().contains(lower)) ||
                             (e.getDescription() != null && e.getDescription().toLowerCase().contains(lower)))
                     .collect(Collectors.toList());
         }
+
         if (categories != null && !categories.isEmpty()) {
             List<Long> validCategories = categories.stream()
                     .filter(c -> c != null && c != 0)
@@ -325,45 +325,55 @@ public class EventServiceImpl implements EventService {
                         .collect(Collectors.toList());
             }
         }
+
         if (paid != null) {
             events = events.stream()
                     .filter(e -> e.getPaid() != null && e.getPaid().equals(paid))
                     .collect(Collectors.toList());
         }
-        if (rangeStart != null) {
+
+        LocalDateTime effectiveStart = rangeStart;
+        LocalDateTime effectiveEnd = rangeEnd;
+        if (effectiveStart != null && effectiveEnd != null && effectiveStart.isAfter(effectiveEnd)) {
+            LocalDateTime temp = effectiveStart;
+            effectiveStart = effectiveEnd;
+            effectiveEnd = temp;
+        }
+
+        final LocalDateTime finalStart = effectiveStart;
+        final LocalDateTime finalEnd = effectiveEnd;
+
+        if (finalStart != null) {
             events = events.stream()
-                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isBefore(rangeStart))
+                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isBefore(finalStart))
                     .collect(Collectors.toList());
         }
-        if (rangeEnd != null) {
+        if (finalEnd != null) {
             events = events.stream()
-                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isAfter(rangeEnd))
+                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isAfter(finalEnd))
                     .collect(Collectors.toList());
         }
+
         if (onlyAvailable) {
             events = events.stream()
                     .filter(e -> e.getParticipantLimit() == 0 || e.getConfirmedRequests() < e.getParticipantLimit())
                     .collect(Collectors.toList());
         }
 
-        int start = Math.min(from, events.size());
-        int end = Math.min(from + size, events.size());
-        events = events.subList(start, end);
-
-        List<EventShortDto> result = events.stream()
-                .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
-                .collect(Collectors.toList());
-
         if ("VIEWS".equalsIgnoreCase(sort)) {
-            result.sort(Comparator.comparingLong(EventShortDto::getViews));
-        } else if ("EVENT_DATE".equalsIgnoreCase(sort)) {
+            events.sort(Comparator.comparing(Event::getViews, Comparator.nullsLast(Comparator.naturalOrder())));
+        } else {
             events.sort(Comparator.comparing(Event::getEventDate));
-            result = events.stream()
-                    .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
-                    .collect(Collectors.toList());
         }
 
-        return result;
+        int start = Math.min(from, events.size());
+        int end = Math.min(from + size, events.size());
+        List<Event> page = events.subList(start, end);
+
+        return page.stream()
+                .map(event -> EventMapper.toEventShortDtoAndViews(event,
+                        event.getViews() != null ? event.getViews() : 0L))
+                .collect(Collectors.toList());
     }
 
 
