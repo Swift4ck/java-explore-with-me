@@ -302,68 +302,123 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("Дата начала не может быть позже даты окончания");
         }
 
-        statsClientService.sendHit("ewm-main-service", "/events", request.getRemoteAddr());
+        statsClientService.sendHit(
+                "ewm-main-service",
+                "/events",
+                request.getRemoteAddr()
+        );
+
 
         List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
 
-        if (text != null && !text.isBlank() && !"0".equals(text)) {
+        if (text != null && !text.isBlank()) {
             String lower = text.toLowerCase();
+
             events = events.stream()
-                    .filter(e -> (e.getAnnotation() != null && e.getAnnotation().toLowerCase().contains(lower)) ||
-                            (e.getDescription() != null && e.getDescription().toLowerCase().contains(lower)))
+                    .filter(event ->
+                            (event.getAnnotation() != null &&
+                                    event.getAnnotation().toLowerCase().contains(lower))
+                                    ||
+                                    (event.getDescription() != null &&
+                                            event.getDescription().toLowerCase().contains(lower))
+                    )
                     .collect(Collectors.toList());
         }
+
         if (categories != null && !categories.isEmpty()) {
-            List<Long> validCategories = categories.stream()
-                    .filter(c -> c != null && c != 0)
+            events = events.stream()
+                    .filter(event ->
+                            event.getCategory() != null &&
+                                    categories.contains(event.getCategory().getId())
+                    )
                     .collect(Collectors.toList());
-            if (!validCategories.isEmpty()) {
+        }
+
+        if (paid != null) {
+            events = events.stream()
+                    .filter(event ->
+                            event.getPaid() != null &&
+                                    event.getPaid().equals(paid)
+                    )
+                    .collect(Collectors.toList());
+        }
+
+        if (rangeStart == null && rangeEnd == null) {
+
+            LocalDateTime now = LocalDateTime.now();
+
+            events = events.stream()
+                    .filter(event ->
+                            event.getEventDate() != null &&
+                                    event.getEventDate().isAfter(now)
+                    )
+                    .collect(Collectors.toList());
+
+        } else {
+
+            if (rangeStart != null) {
                 events = events.stream()
-                        .filter(e -> e.getCategory() != null && validCategories.contains(e.getCategory().getId()))
+                        .filter(event ->
+                                event.getEventDate() != null &&
+                                        !event.getEventDate().isBefore(rangeStart)
+                        )
+                        .collect(Collectors.toList());
+            }
+
+            if (rangeEnd != null) {
+                events = events.stream()
+                        .filter(event ->
+                                event.getEventDate() != null &&
+                                        !event.getEventDate().isAfter(rangeEnd)
+                        )
                         .collect(Collectors.toList());
             }
         }
-        if (paid != null) {
-            events = events.stream()
-                    .filter(e -> e.getPaid() != null && e.getPaid().equals(paid))
-                    .collect(Collectors.toList());
-        }
-        if (rangeStart != null) {
-            events = events.stream()
-                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isBefore(rangeStart))
-                    .collect(Collectors.toList());
-        }
-        if (rangeEnd != null) {
-            events = events.stream()
-                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isAfter(rangeEnd))
-                    .collect(Collectors.toList());
-        }
+
         if (onlyAvailable) {
             events = events.stream()
-                    .filter(e -> e.getParticipantLimit() == 0 || e.getConfirmedRequests() < e.getParticipantLimit())
+                    .filter(event ->
+                            event.getParticipantLimit() == 0
+                                    ||
+                                    requestRepository.countByEventIdAndStatus(
+                                            event.getId(),
+                                            Status.CONFIRMED
+                                    ) < event.getParticipantLimit()
+                    )
                     .collect(Collectors.toList());
         }
+
+
+        if ("VIEWS".equalsIgnoreCase(sort)) {
+
+            events.sort(
+                    Comparator.comparingLong(event ->
+                            event.getViews() != null ? event.getViews() : 0L
+                    )
+            );
+
+        } else if ("EVENT_DATE".equalsIgnoreCase(sort)) {
+
+            events.sort(
+                    Comparator.comparing(Event::getEventDate)
+            );
+        }
+
 
         int start = Math.min(from, events.size());
         int end = Math.min(from + size, events.size());
-        events = events.subList(start, end);
 
-        List<EventShortDto> result = events.stream()
-                .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
+        List<Event> pageEvents = events.subList(start, end);
+
+        return pageEvents.stream()
+                .map(event ->
+                        EventMapper.toEventShortDtoAndViews(
+                                event,
+                                event.getViews() != null ? event.getViews() : 0L
+                        )
+                )
                 .collect(Collectors.toList());
-
-        if ("VIEWS".equalsIgnoreCase(sort)) {
-            result.sort(Comparator.comparingLong(EventShortDto::getViews));
-        } else if ("EVENT_DATE".equalsIgnoreCase(sort)) {
-            events.sort(Comparator.comparing(Event::getEventDate));
-            result = events.stream()
-                    .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
-                    .collect(Collectors.toList());
-        }
-
-
-        return result;
     }
 
 
