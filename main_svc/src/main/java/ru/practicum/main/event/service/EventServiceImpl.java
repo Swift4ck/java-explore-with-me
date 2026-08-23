@@ -299,14 +299,13 @@ public class EventServiceImpl implements EventService {
             int size,
             HttpServletRequest request) {
 
-        if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
-            throw new BadRequestException("Дата начала не может быть позже даты окончания");
-        }
-
         statsClientService.sendHit("ewm-main-service", "/events", request.getRemoteAddr());
 
-        List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
+        if (rangeStart == null) {
+            rangeStart = LocalDateTime.now();
+        }
 
+        List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
         if (text != null && !text.isBlank() && !"0".equals(text)) {
             String lower = text.toLowerCase();
@@ -315,6 +314,7 @@ public class EventServiceImpl implements EventService {
                             (e.getDescription() != null && e.getDescription().toLowerCase().contains(lower)))
                     .collect(Collectors.toList());
         }
+
         if (categories != null && !categories.isEmpty()) {
             List<Long> validCategories = categories.stream()
                     .filter(c -> c != null && c != 0)
@@ -325,45 +325,43 @@ public class EventServiceImpl implements EventService {
                         .collect(Collectors.toList());
             }
         }
+
         if (paid != null) {
             events = events.stream()
                     .filter(e -> e.getPaid() != null && e.getPaid().equals(paid))
                     .collect(Collectors.toList());
         }
-        if (rangeStart != null) {
+
+        if (rangeStart != null && rangeEnd != null && rangeStart.isBefore(rangeEnd)) {
+            final LocalDateTime finalStart = rangeStart;
+            final LocalDateTime finalEnd = rangeEnd;
             events = events.stream()
-                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isBefore(rangeStart))
+                    .filter(e -> e.getEventDate() != null &&
+                            !e.getEventDate().isBefore(finalStart) &&
+                            !e.getEventDate().isAfter(finalEnd))
                     .collect(Collectors.toList());
         }
-        if (rangeEnd != null) {
-            events = events.stream()
-                    .filter(e -> e.getEventDate() != null && !e.getEventDate().isAfter(rangeEnd))
-                    .collect(Collectors.toList());
-        }
+
         if (onlyAvailable) {
             events = events.stream()
                     .filter(e -> e.getParticipantLimit() == 0 || e.getConfirmedRequests() < e.getParticipantLimit())
                     .collect(Collectors.toList());
         }
 
-        int start = Math.min(from, events.size());
-        int end = Math.min(from + size, events.size());
-        events = events.subList(start, end);
-
-        List<EventShortDto> result = events.stream()
-                .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
-                .collect(Collectors.toList());
-
         if ("VIEWS".equalsIgnoreCase(sort)) {
-            result.sort(Comparator.comparingLong(EventShortDto::getViews));
-        } else if ("EVENT_DATE".equalsIgnoreCase(sort)) {
+            events.sort(Comparator.comparing(Event::getViews, Comparator.nullsLast(Comparator.naturalOrder())));
+        } else {
             events.sort(Comparator.comparing(Event::getEventDate));
-            result = events.stream()
-                    .map(event -> EventMapper.toEventShortDtoAndViews(event, event.getViews() != null ? event.getViews() : 0L))
-                    .collect(Collectors.toList());
         }
 
-        return result;
+        int start = Math.min(from, events.size());
+        int end = Math.min(from + size, events.size());
+        List<Event> page = events.subList(start, end);
+
+        return page.stream()
+                .map(event -> EventMapper.toEventShortDtoAndViews(event,
+                        event.getViews() != null ? event.getViews() : 0L))
+                .collect(Collectors.toList());
     }
 
 
