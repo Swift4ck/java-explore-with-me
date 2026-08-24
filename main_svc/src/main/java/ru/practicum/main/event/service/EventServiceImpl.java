@@ -312,7 +312,7 @@ public class EventServiceImpl implements EventService {
         List<Event> events = eventRepository.findAllByState(EventState.PUBLISHED);
 
 
-        if (text != null && !text.isBlank()) {
+        if (text != null && !text.isBlank() && !"0".equals(text)) {
             String lower = text.toLowerCase();
 
             events = events.stream()
@@ -412,12 +412,15 @@ public class EventServiceImpl implements EventService {
         List<Event> pageEvents = events.subList(start, end);
 
         return pageEvents.stream()
-                .map(event ->
-                        EventMapper.toEventShortDtoAndViews(
-                                event,
-                                event.getViews() != null ? event.getViews() : 0L
-                        )
-                )
+                .map(event -> {
+                    long confirmedRequests = requestRepository.countByEventIdAndStatus(
+                            event.getId(), Status.CONFIRMED);
+                    EventShortDto dto = EventMapper.toEventShortDtoAndViews(
+                            event,
+                            event.getViews() != null ? event.getViews() : 0L);
+                    dto.setConfirmedRequests((int) confirmedRequests);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -651,7 +654,10 @@ public class EventServiceImpl implements EventService {
 
         List<EventFullDto> result = new ArrayList<>();
         for (Event event : pageEvents) {
+            long confirmedRequests = requestRepository.countByEventIdAndStatus(
+                    event.getId(), Status.CONFIRMED);
             EventFullDto dto = EventMapper.toEventFullDto(event);
+            dto.setConfirmedRequests((int) confirmedRequests);
             dto.setViews(viewsMap.getOrDefault(event.getId(), 0L));
             result.add(dto);
         }
