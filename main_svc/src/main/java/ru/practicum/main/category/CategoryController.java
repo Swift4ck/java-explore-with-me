@@ -50,24 +50,5 @@ public class CategoryController {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/admin/categories")
-//    public CategoryDto createCategory(@RequestBody NewCategoryDto newCategoryDto) {
-//
-//    }
-//
-//    @PatchMapping("/admin/categories/{catId}")
-//    public CategoryDto updateCategory(@PathVariable Long catId, @RequestBody CategoryDto categoryDto) {
-//
-//    }
-//
-//    @PostMapping("/admin/compilations")
-//    public CompilationDto createCompilation(@RequestBody NewCompilationDto newCompilationDto) {
-//
-//    }
-//
-//    @PatchMapping("/admin/compilations/{compId}")
-//    public CompilationDto updateCompilation(@PathVariable Long compId, @RequestBody UpdateCompilationRequest updateRequest) {
-//
-//    }
 
 }

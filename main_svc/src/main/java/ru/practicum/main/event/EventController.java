@@ -33,7 +33,6 @@ public class EventController {
     public List<EventShortDto> getEvents(@PathVariable Long userId, @RequestParam(defaultValue = "0") int from,
                                          @RequestParam(defaultValue = "10") int size) {
 
-//        authorizationVerification(userId);
 
         return eventService.getEvents(userId, from, size);
     }
@@ -42,15 +41,11 @@ public class EventController {
     @ResponseStatus(HttpStatus.CREATED)
     public EventFullDto createEvent(@PathVariable Long userId, @Valid @RequestBody NewEventDto newEventDto) {
 
-//        authorizationVerification(userId);
-
         return eventService.createEvent(userId, newEventDto);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}")
     public EventFullDto getFullEventById(@PathVariable Long userId, @PathVariable Long eventId) {
-
-//        authorizationVerification(userId);
 
         return eventService.getFullEventById(userId, eventId);
     }
@@ -59,39 +54,15 @@ public class EventController {
     public EventFullDto updateEvent(@PathVariable Long userId, @PathVariable Long eventId,
                                      @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest) {
 
-//        authorizationVerification(userId);
-
         return eventService.updateEvent(userId, eventId, updateEventUserRequest);
     }
 
     @GetMapping("/users/{userId}/events/{eventId}/requests")
     public List<ParticipationRequestDto> getEventRequestsForUser(@PathVariable Long userId, @PathVariable Long eventId) {
 
-//        authorizationVerification(userId);
-
         return eventService.getEventRequestsForUser(userId, eventId);
     }
 
-
-
-
-//    public void authorizationVerification(Long userId) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Object principal = authentication.getPrincipal();
-//
-//        if (!(principal instanceof User)) {
-//            throw new ForbiddenException("Пользователь не авторизован корректно");
-//        }
-//
-//        User currentUser = (User) principal;
-//        Long currentUserId = currentUser.getId();
-//
-//        if (!userId.equals(currentUserId)) {
-//            throw new ForbiddenException("Нельзя создавать события от чужого имени авторизованы как пользователь:"
-//                    + currentUserId + " но пытаетесь действовать от имени: " + userId
-//            );
-//        }
-//    }
 
 
     @GetMapping("/events")

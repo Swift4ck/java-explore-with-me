@@ -24,22 +24,17 @@ public class RequestController {
     @PostMapping("/users/{userId}/requests")
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createRequest(@PathVariable Long userId, @RequestParam(required = true) Long eventId) {
-//        authorizationVerification(userId);
         return requestService.createRequest(userId, eventId);
     }
 
     @GetMapping("/users/{userId}/requests")
     public List<ParticipationRequestDto> getRequest(@PathVariable Long userId) {
 
-//        authorizationVerification(userId);
-
         return requestService.getRequest(userId);
     }
 
     @PatchMapping("/users/{userId}/requests/{requestId}/cancel")
     public ParticipationRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
-
-//        authorizationVerification(userId);
 
         return requestService.cancelRequest(userId, requestId);
     }
@@ -66,22 +61,5 @@ public class RequestController {
 
 
 
-//    public void authorizationVerification(Long userId) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Object principal = authentication.getPrincipal();
-//
-//        if (!(principal instanceof User)) {
-//            throw new ForbiddenException("Пользователь не авторизован корректно");
-//        }
-//
-//        User currentUser = (User) principal;
-//        Long currentUserId = currentUser.getId();
-//
-//        if (!userId.equals(currentUserId)) {
-//            throw new ForbiddenException("Нельзя создавать события от чужого имени авторизованы как пользователь:"
-//                    + currentUserId + " но пытаетесь действовать от имени: " + userId
-//            );
-//        }
-//    }
 
 }
