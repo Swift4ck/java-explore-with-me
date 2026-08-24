@@ -31,7 +31,7 @@ public class StatsClientService {
                 .app(app)
                 .uri(uri)
                 .ip(ip)
-                .timestamp(java.time.LocalDateTime.now())
+                .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
 
         try {
