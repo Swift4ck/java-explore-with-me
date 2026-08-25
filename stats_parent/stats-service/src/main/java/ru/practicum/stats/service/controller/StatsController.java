@@ -32,4 +32,10 @@ public class StatsController {
         return statsService.getStatus(start, end, uris, unique);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public void handleIllegalArgument(IllegalArgumentException e) {
+        log.warn("Illegal argument: {}", e.getMessage());
+    }
+
 }

@@ -44,11 +44,13 @@ public class StatsServiceImpl implements StatsService {
 
     @Override
     public List<ViewStats> getStatus(String start, String end, List<String> uris, boolean unique) {
-
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
         LocalDateTime startFormat = LocalDateTime.parse(start, formatter);
         LocalDateTime endFormat = LocalDateTime.parse(end, formatter);
+
+        if (startFormat.isAfter(endFormat)) {
+            throw new IllegalArgumentException("Дата начала должна быть раньше даты окончания");
+        }
 
         List<Hit> hits = hitRepository.findByTimestampBetween(startFormat, endFormat);
 
