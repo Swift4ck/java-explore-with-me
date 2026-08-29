@@ -45,10 +45,10 @@ public class OpinionServiceImpl implements OpinionService {
         }
 
         User user = userRepository.findById(rating.getUserId())
-                .orElseThrow(() -> new NotFoundException("Пользователь с ID:" + rating.getUserId() + "не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID:" + rating.getUserId() + " не найден"));
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Мероприятие с ID:" + eventId + "не найден"));
+                .orElseThrow(() -> new NotFoundException("Мероприятие с ID:" + eventId + " не найден"));
 
         if (opinionRepository.existsByUserIdAndEventId(rating.getUserId(), eventId)) {
             throw new BadRequestException("Вы уже оставили голос за это мероприятие");
@@ -79,10 +79,10 @@ public class OpinionServiceImpl implements OpinionService {
         }
 
         User user = userRepository.findById(rating.getUserId())
-                .orElseThrow(() -> new NotFoundException("Пользователь с ID:" + rating.getUserId() + "не найден"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID:" + rating.getUserId() + " не найден"));
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Мероприятие с ID:" + eventId + "не найден"));
+                .orElseThrow(() -> new NotFoundException("Мероприятие с ID:" + eventId + " не найден"));
 
         if (!opinionRepository.existsByUserIdAndEventId(rating.getUserId(), eventId)) {
             throw new BadRequestException("Вы ещё не оставили голос за это мероприятие");
@@ -111,7 +111,7 @@ public class OpinionServiceImpl implements OpinionService {
         }
 
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Мероприятие с ID:" + eventId + "не найден"));
+                .orElseThrow(() -> new NotFoundException("Мероприятие с ID:" + eventId + " не найден"));
 
         Long countLike = opinionRepository.countByEventIdAndRating(eventId, Rating.LIKE);
 

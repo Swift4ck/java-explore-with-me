@@ -18,7 +18,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "\npm.test(\"Status code is 200 or 201\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\n});\n\n\npm.test(\"Response has body and is JSON\", function () {\n    pm.expect(pm.response.responseSize).to.be.above(0); // Тело не пустое\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \n});\n\n\npm.test(\"Идентификатор автора совпадает с запрошенным идентификатором пользователя\", function () {\n    var jsonData = pm.response.json();\n\n    var requestedUserId = pm.request.url.query.get(\"userId\");\n\n    pm.expect(jsonData.authorId).to.eql(Number(requestedUserId));\n});\n\n\npm.test(\"Идентификатор события соответствует запрошенному EventID\", function () {\n    var jsonData = pm.response.json();\n    \n\n    var pathParts = pm.request.url.path;\n    \n\n    var requestedEventId = pathParts[1]; \n    \n\n    pm.expect(jsonData.eventId).to.eql(Number(requestedEventId));\n});\n\n\npm.test(\"Текст комментария совпадает с отправленным текстом\", function () {\n    var jsonData = pm.response.json();\n    \n\n    var sentTextRaw = pm.request.body.raw;\n    \n\n    var requestJson = JSON.parse(sentTextRaw);\n    \n\n    pm.expect(jsonData.text).to.eql(requestJson.text);\n});\n\n\npm.test(\"Присутствует дата создания\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.created).to.not.be.undefined;\n    pm.expect(jsonData.created).to.be.a('string');\n});\n\npm.test(\"Идентификатор комментария - это положительное число\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.id).to.be.a('number');\n    pm.expect(jsonData.id).to.be.above(0);\n});"
+                  "\npm.test(\"Status code is 200 or 201\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\n});\n\n\npm.test(\"Response has body and is JSON\", function () {\n    pm.expect(pm.response.responseSize).to.be.above(0); \n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \n});\n\n\npm.test(\"Идентификатор автора совпадает с запрошенным идентификатором пользователя\", function () {\n    var jsonData = pm.response.json();\n\n    var requestedUserId = pm.request.url.query.get(\"userId\");\n\n    pm.expect(jsonData.authorId).to.eql(Number(requestedUserId));\n});\n\n\npm.test(\"Идентификатор события соответствует запрошенному EventID\", function () {\n    var jsonData = pm.response.json();\n    \n\n    var pathParts = pm.request.url.path;\n    \n\n    var requestedEventId = pathParts[1]; \n    \n\n    pm.expect(jsonData.eventId).to.eql(Number(requestedEventId));\n});\n\n\npm.test(\"Текст комментария совпадает с отправленным текстом\", function () {\n    var jsonData = pm.response.json();\n    \n\n    var sentTextRaw = pm.request.body.raw;\n    \n\n    var requestJson = JSON.parse(sentTextRaw);\n    \n\n    pm.expect(jsonData.text).to.eql(requestJson.text);\n});\n\n\npm.test(\"Присутствует дата создания\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.created).to.not.be.undefined;\n    pm.expect(jsonData.created).to.be.a('string');\n});\n\npm.test(\"Идентификатор комментария - это положительное число\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.id).to.be.a('number');\n    pm.expect(jsonData.id).to.be.above(0);\n});"
                 ]
               }
             }
@@ -65,7 +65,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "\npm.test(\"Status code is 500\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([500, 501]);\n});\n\n\npm.test(\"Response has body and is JSON\", function () {\n    pm.expect(pm.response.responseSize).to.be.above(0); \n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); // \n});\n"
+                  "\npm.test(\"Status code is 500\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([500, 501]);\n});\n\n\npm.test(\"Response has body and is JSON\", function () {\n    pm.expect(pm.response.responseSize).to.be.above(0); \n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \n});\n"
                 ]
               }
             }
@@ -755,12 +755,23 @@
       "item": [
         {
           "name": "Create voice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\":2,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -777,6 +788,375 @@
               "path": [
                 "events",
                 "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail create not rating",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 401]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Repeat vote is not possible",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 401]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail create not event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/999999999/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "999999999",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail create not user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 404\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":9999999,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail patch not userID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 401]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail patch not rating",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 401]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail patch not found user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":99999,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail patch not found event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "You haven’t voted for this event yet",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/3/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "3",
                 "ratings"
               ]
             }
@@ -814,7 +1194,88 @@
           "response": []
         },
         {
+          "name": "Re-evaluation error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});\r\n\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get rating events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/1/rating",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "rating"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get rating events Copy",
           "request": {
             "method": "GET",
             "header": [],
