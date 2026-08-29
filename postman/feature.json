@@ -1181,7 +1181,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"DISLIKE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1222,7 +1222,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"DISLIKE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
