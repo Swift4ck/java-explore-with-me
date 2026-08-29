@@ -1165,6 +1165,17 @@
         },
         {
           "name": "Path voice",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});\r\n"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [],
@@ -1201,7 +1212,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});\r\n\r\n"
+                  "\r\npm.test(\"Status code is 400 or 401\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 401]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});\r\n\r\n"
                 ]
               }
             }
@@ -1276,6 +1287,17 @@
         },
         {
           "name": "Get rating events Copy",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 404\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -1289,14 +1311,14 @@
               }
             },
             "url": {
-              "raw": "http://localhost:8080/1/rating",
+              "raw": "http://localhost:8080/9999/rating",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
-                "1",
+                "9999",
                 "rating"
               ]
             }
