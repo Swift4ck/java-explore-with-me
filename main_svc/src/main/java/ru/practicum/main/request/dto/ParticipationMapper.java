@@ -1,12 +1,13 @@
 package ru.practicum.main.request.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.main.request.model.EventRequestStatusUpdateRequest;
 import ru.practicum.main.request.model.ParticipationRequest;
 
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
-
+@UtilityClass
 public class ParticipationMapper {
 
 

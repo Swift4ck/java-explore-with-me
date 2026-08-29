@@ -100,7 +100,6 @@ public class CommentServiceImpl implements CommentService {
         return CommentMapper.toCommentDto(updateCom);
     }
 
-    @Transactional(readOnly = true)
     @Override
     public List<CommentDto> getCommentsByEvent(Long eventId) {
         log.info("Запрос на получения комментарий для мероприятия: {}", eventId);
@@ -120,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
+
     @Override
     public List<CommentDto> getCommentsByUser(Long userId) {
         log.info("Запрос на получения комментарий от пользователя: {}", userId);

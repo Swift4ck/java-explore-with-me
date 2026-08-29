@@ -1,7 +1,9 @@
 package ru.practicum.main.subscriptions.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.main.subscriptions.model.Subscription;
 
+@UtilityClass
 public class SubscriptionMapper {
 
     public static SubscriptionDto toSubscriptionDto(Subscription subscription) {

@@ -1,7 +1,9 @@
 package ru.practicum.main.rating.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.main.rating.model.Opinion;
 
+@UtilityClass
 public class OpinionMapper {
 
     public static OpinionDto toOpinionDto(Opinion opinion) {

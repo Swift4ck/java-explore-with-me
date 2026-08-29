@@ -1,5 +1,6 @@
 package ru.practicum.main.event.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.main.category.dto.CategoryDto;
 import ru.practicum.main.category.dto.CategoryMapper;
 import ru.practicum.main.category.repository.CategoryRepository;
@@ -9,6 +10,7 @@ import ru.practicum.main.event.model.Location;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+@UtilityClass
 public class EventMapper {
 
     private CategoryRepository categoryRepository;

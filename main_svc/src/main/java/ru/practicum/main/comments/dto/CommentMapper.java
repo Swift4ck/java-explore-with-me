@@ -1,7 +1,9 @@
 package ru.practicum.main.comments.dto;
 
+import lombok.experimental.UtilityClass;
 import ru.practicum.main.comments.model.Comment;
 
+@UtilityClass
 public class CommentMapper {
 
     public static CommentDto toCommentDto(Comment comment) {
