@@ -7,9 +7,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.main.category.Category;
+import ru.practicum.main.comments.model.Comment;
 import ru.practicum.main.enums.EventState;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -63,5 +66,8 @@ public class Event {
     private EventState state; //Список состояний жизненного цикла события
 
     private Long views = 0L; // просмотры
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
 
 }

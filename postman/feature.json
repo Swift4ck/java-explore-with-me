@@ -1,0 +1,858 @@
+{
+  "info": {
+    "_postman_id": "bccdc82a-244a-4ab7-a9cb-532a3ca9377e",
+    "name": "feature",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53385770",
+    "_collection_link": "https://go.postman.co/collection/53385770-bccdc82a-244a-4ab7-a9cb-532a3ca9377e?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Comment",
+      "item": [
+        {
+          "name": "Post comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\npm.test(\"Status code is 200 or 201\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\n});\n\n\npm.test(\"Response has body and is JSON\", function () {\n    pm.expect(pm.response.responseSize).to.be.above(0); // Тело не пустое\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \n});\n\n\npm.test(\"Идентификатор автора совпадает с запрошенным идентификатором пользователя\", function () {\n    var jsonData = pm.response.json();\n\n    var requestedUserId = pm.request.url.query.get(\"userId\");\n\n    pm.expect(jsonData.authorId).to.eql(Number(requestedUserId));\n});\n\n\npm.test(\"Идентификатор события соответствует запрошенному EventID\", function () {\n    var jsonData = pm.response.json();\n    \n\n    var pathParts = pm.request.url.path;\n    \n\n    var requestedEventId = pathParts[1]; \n    \n\n    pm.expect(jsonData.eventId).to.eql(Number(requestedEventId));\n});\n\n\npm.test(\"Текст комментария совпадает с отправленным текстом\", function () {\n    var jsonData = pm.response.json();\n    \n\n    var sentTextRaw = pm.request.body.raw;\n    \n\n    var requestJson = JSON.parse(sentTextRaw);\n    \n\n    pm.expect(jsonData.text).to.eql(requestJson.text);\n});\n\n\npm.test(\"Присутствует дата создания\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.created).to.not.be.undefined;\n    pm.expect(jsonData.created).to.be.a('string');\n});\n\npm.test(\"Идентификатор комментария - это положительное число\", function () {\n    var jsonData = pm.response.json();\n    pm.expect(jsonData.id).to.be.a('number');\n    pm.expect(jsonData.id).to.be.above(0);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"Это тестовый комментарий для проверки API\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/comments?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "comments"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "The comment is too long",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\npm.test(\"Status code is 500\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([500, 501]);\n});\n\n\npm.test(\"Response has body and is JSON\", function () {\n    pm.expect(pm.response.responseSize).to.be.above(0); \n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); // \n});\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"ыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыыы\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/comments?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "comments"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail post not found user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test(\"Status code is 400 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 404]);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has expected error structure\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"errors\");",
+                  "    pm.expect(jsonData).to.have.property(\"message\");",
+                  "    pm.expect(jsonData).to.have.property(\"status\");",
+                  "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                  "});",
+                  "",
+                  "pm.test(\"Error status in body is NOT_FOUND\", function () {",
+                  "    pm.expect(jsonData.status).to.eql(\"NOT_FOUND\");",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"Это тестовый комментарий для проверки API\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/comments?userId=999999999999999",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "comments"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "999999999999999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail post not found event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "",
+                  "pm.test(\"Status code is 400 or 404\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 404]);",
+                  "});",
+                  "",
+                  "var jsonData = pm.response.json();",
+                  "",
+                  "pm.test(\"Response has expected error structure\", function () {",
+                  "    pm.expect(jsonData).to.have.property(\"errors\");",
+                  "    pm.expect(jsonData).to.have.property(\"message\");",
+                  "    pm.expect(jsonData).to.have.property(\"status\");",
+                  "    pm.expect(jsonData).to.have.property(\"timestamp\");",
+                  "});",
+                  "",
+                  "pm.test(\"Error message contains correct text\", function () {",
+                  "    var expectedMessagePart = \"Не найдено мероприятие с ID:\";",
+                  "    pm.expect(jsonData.message).to.contain(expectedMessagePart);",
+                  "    var sentEventId = pm.request.url.path[1];",
+                  "    pm.expect(jsonData.message).to.contain(sentEventId);",
+                  "});",
+                  "",
+                  "pm.test(\"Error status in body is NOT_FOUND\", function () {",
+                  "    pm.expect(jsonData.status).to.eql(\"NOT_FOUND\");",
+                  "}); ",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"Это тестовый комментарий для проверки API\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/9999999999999999/comments?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "9999999999999999",
+                "comments"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Post fail comment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\npm.test(\"Status code is 400 or 403\", function () {\n    pm.expect(pm.response.code).to.be.oneOf([400, 403]);\n});\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/comments?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "comments"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update comment",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"Этот комент обновили\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/comments/1?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "comments",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get comment by event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r",
+                  "    pm.response.to.have.status(200);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response is an array\", function () {\r",
+                  "    pm.expect(pm.response.json()).to.be.an('array');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Array is not empty\", function () {\r",
+                  "    pm.expect(pm.response.json().length).to.be.greaterThan(0);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Each comment has required fields\", function () {\r",
+                  "    const comments = pm.response.json();\r",
+                  "    comments.forEach(comment => {\r",
+                  "        pm.expect(comment).to.have.property('id');\r",
+                  "        pm.expect(comment).to.have.property('text');\r",
+                  "        pm.expect(comment).to.have.property('authorId');\r",
+                  "        pm.expect(comment).to.have.property('eventId');\r",
+                  "        pm.expect(comment).to.have.property('created');\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"All comments belong to requested event\", function () {\r",
+                  "    const comments = pm.response.json();\r",
+                  "    const expectedEventId = 1; \r",
+                  "    comments.forEach(comment => {\r",
+                  "        pm.expect(comment.eventId).to.eql(expectedEventId);\r",
+                  "    });\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Comments are sorted by created ascending\", function () {\r",
+                  "    const comments = pm.response.json();\r",
+                  "    for (let i = 0; i < comments.length - 1; i++) {\r",
+                  "        const current = new Date(comments[i].created);\r",
+                  "        const next = new Date(comments[i + 1].created);\r",
+                  "        pm.expect(current <= next).to.be.true;\r",
+                  "    }\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Created field is a valid date\", function () {\r",
+                  "    const comments = pm.response.json();\r",
+                  "    comments.forEach(comment => {\r",
+                  "        const date = new Date(comment.created);\r",
+                  "        pm.expect(date.toString()).to.not.eql('Invalid Date');\r",
+                  "    });\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"Этот комент обновили\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/comments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get comment by event fail",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {\r",
+                  "    pm.response.to.have.status(404);\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Response has expected error structure\", function () {\r",
+                  "    const body = pm.response.json();\r",
+                  "    pm.expect(body).to.have.property('errors');\r",
+                  "    pm.expect(body).to.have.property('message');\r",
+                  "    pm.expect(body).to.have.property('status');\r",
+                  "    pm.expect(body).to.have.property('timestamp');\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Error message contains correct text\", function () {\r",
+                  "    const body = pm.response.json();\r",
+                  "    const expectedMessagePart = \"Не найдено мероприятие с ID:\";\r",
+                  "    pm.expect(body.message).to.contain(expectedMessagePart);\r",
+                  "    pm.expect(body.message).to.contain(\"999999\");\r",
+                  "});\r",
+                  "\r",
+                  "pm.test(\"Error status in body is NOT_FOUND\", function () {\r",
+                  "    const body = pm.response.json();\r",
+                  "    pm.expect(body.status).to.eql(\"NOT_FOUND\");\r",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"Этот комент обновили\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/9999999999/comments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "9999999999",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get comment by user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {\r\n    pm.response.to.have.status(200);\r\n});\r\n\r\npm.test(\"Response is an array\", function () {\r\n    pm.expect(pm.response.json()).to.be.an('array');\r\n});\r\n\r\npm.test(\"Array is not empty\", function () {\r\n    pm.expect(pm.response.json().length).to.be.greaterThan(0);\r\n});\r\n\r\npm.test(\"Each comment has required fields\", function () {\r\n    const comments = pm.response.json();\r\n    comments.forEach(comment => {\r\n        pm.expect(comment).to.have.property('id');\r\n        pm.expect(comment).to.have.property('text');\r\n        pm.expect(comment).to.have.property('authorId');\r\n        pm.expect(comment).to.have.property('eventId');\r\n        pm.expect(comment).to.have.property('created');\r\n    });\r\n});\r\n\r\npm.test(\"All comments belong to requested user\", function () {\r\n    const comments = pm.response.json();\r\n    const expectedUserId = 1; \r\n    comments.forEach(comment => {\r\n        pm.expect(comment.authorId).to.eql(expectedUserId);\r\n    });\r\n});\r\n\r\npm.test(\"Comments are sorted by created ascending\", function () {\r\n    const comments = pm.response.json();\r\n    for (let i = 0; i < comments.length - 1; i++) {\r\n        const current = new Date(comments[i].created);\r\n        const next = new Date(comments[i + 1].created);\r\n        pm.expect(current <= next).to.be.true;\r\n    }\r\n});\r\n\r\npm.test(\"Created field is a valid date\", function () {\r\n    const comments = pm.response.json();\r\n    comments.forEach(comment => {\r\n        const date = new Date(comment.created);\r\n        pm.expect(date.toString()).to.not.eql('Invalid Date');\r\n    });\r\n});"
+                ]
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{\r\n  \"text\": \"Этот комент обновили\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/users/1/comments",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "users",
+                "1",
+                "comments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete com",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 or 204\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 204]);\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/comments/1?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "comments",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Subscribe",
+      "item": [
+        {
+          "name": "subscribe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/subscriptions/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "subscriptions",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "self subscription is not possible",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400 or 401\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 401]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});\r\n\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/subscriptions/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "subscriptions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "unsubscribe",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/subscriptions/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "subscriptions",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get subscriptions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/subscriptions",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "subscriptions"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get subscribers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); // Тело не пустое\r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/subscribers",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "subscribers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get events feed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 200 or 201\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([200, 201]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/feed",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "feed"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Rating",
+      "item": [
+        {
+          "name": "Create voice",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":2,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Path voice",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/events/1/ratings",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "events",
+                "1",
+                "ratings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get rating events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/1/rating",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "rating"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "userId",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    }
+  ]
+}
