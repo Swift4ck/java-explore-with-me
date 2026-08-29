@@ -1,6 +1,7 @@
 package ru.practicum.main.rating;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.rating.dto.CreateRatingDto;
 import ru.practicum.main.rating.dto.OpinionDto;
@@ -28,5 +29,9 @@ public class RatingController {
         return opinionService.getRatingEvent(eventId);
     }
 
+    @DeleteMapping("/{eventId}/rating")
+    public ResponseEntity<Void> deleteRating(@PathVariable Long eventId,@RequestParam Long userId) {
+        return opinionService.deleteRating(eventId, userId);
+    }
 
 }

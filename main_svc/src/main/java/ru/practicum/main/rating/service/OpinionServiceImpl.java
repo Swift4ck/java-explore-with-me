@@ -3,6 +3,7 @@ package ru.practicum.main.rating.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.enums.Rating;
@@ -126,6 +127,28 @@ public class OpinionServiceImpl implements OpinionService {
         ratingDto.setCountingTime(LocalDateTime.now());
 
         return ratingDto;
+    }
+
+    @Override
+    @Transactional
+    public ResponseEntity<Void> deleteRating(Long eventId, Long userId) {
+        log.info("Получен запрос на удаления оценки мероприятия {} от пользователя {}", eventId, userId);
+
+        if (eventId == null || userId == null) {
+            throw new BadRequestException("Запрос составлен не верно");
+        }
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Мероприятие с ID:" + eventId + " не найден"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с ID:" + userId + " не найден"));
+
+        Opinion deleteOpinion = opinionRepository.findByUserIdAndEventId(userId, eventId);
+
+        opinionRepository.delete(deleteOpinion);
+
+        return ResponseEntity.noContent().build();
     }
 
 }

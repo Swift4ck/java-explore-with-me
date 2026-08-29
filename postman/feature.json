@@ -1181,7 +1181,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"DISLIKE\"\r\n}",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1222,7 +1222,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"DISLIKE\"\r\n}",
+              "raw": "{\r\n    \"userId\":1,\r\n    \"rating\":\"LIKE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1320,6 +1320,117 @@
               "path": [
                 "9999",
                 "rating"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail delete rating not found user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/rating?userId=99999",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "rating"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "99999"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Fail delete rating not found event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 400\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([400, 404]);\r\n});\r\n\r\n\r\npm.test(\"Response has body and is JSON\", function () {\r\n    pm.expect(pm.response.responseSize).to.be.above(0); \r\n    pm.expect(pm.response.headers.get('content-type')).to.contain('application/json'); \r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/999999/rating?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "999999",
+                "rating"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete rating",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "\r\npm.test(\"Status code is 204\", function () {\r\n    pm.expect(pm.response.code).to.be.oneOf([204, 200]);\r\n});\r\n"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/1/rating?userId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "1",
+                "rating"
+              ],
+              "query": [
+                {
+                  "key": "userId",
+                  "value": "1"
+                }
               ]
             }
           },
